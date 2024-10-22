@@ -68,7 +68,7 @@
   ]
 </script>
 
-<style scoped lang="sass">
+<!-- <style scoped lang="sass">
   .social-link :deep(.v-icon)
     color: rgba(var(--v-theme-on-background), var(--v-disabled-opacity))
     text-decoration: none
@@ -76,4 +76,4 @@
 
     &:hover
       color: rgba(25, 118, 210, 1)
-</style>
+</style> -->

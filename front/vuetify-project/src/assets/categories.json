@@ -1,0 +1,45 @@
+{
+    "categories": [
+      {
+        "id": 1,
+        "nom": "Pizzas"
+      },
+      {
+        "id": 2,
+        "nom": "Bebidas"
+      },
+      {
+        "id": 3,
+        "nom": "Postres"
+      },
+      {
+        "id": 4,
+        "nom": "Entrantes"
+      },
+      {
+        "id": 5,
+        "nom": "Ensaladas"
+      },
+      {
+        "id": 6,
+        "nom": "Pastas"
+      },
+      {
+        "id": 7,
+        "nom": "Hamburguesas"
+      },
+      {
+        "id": 8,
+        "nom": "Sándwiches"
+      },
+      {
+        "id": 9,
+        "nom": "Sopas"
+      },
+      {
+        "id": 10,
+        "nom": "Platos principales"
+      }
+    ]
+  }
+  
