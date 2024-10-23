@@ -71,7 +71,7 @@ app.put('/addProd', async (req, res) => {
 });
 
 app.get('/getCat', async (req, res) => {
-    console.log('getProd')
+    console.log('getCat')
 
     try {
         connection = await mysql.createConnection(config);
@@ -88,6 +88,32 @@ app.get('/getCat', async (req, res) => {
         if (connection) {
             await connection.end()
         }
+    }
+});
+
+app.put('/addCat', async (req, res) => {
+    console.log("addCat")
+    const prod = req.body 
+    
+    try {
+        const connection = await mysql.createConnection(config);
+
+        const insertQuery = `
+            INSERT INTO categories (nom)
+            VALUES (?)
+        `;
+
+        await connection.execute(insertQuery, [
+            prod.nom
+        ]);
+
+        const [rows] = await connection.execute('SELECT * FROM categories');
+
+        res.json(rows);
+
+    } catch (err) {
+        console.error('Error MySQL', err)
+        res.status(500).send('Error data')
     }
 });
 
