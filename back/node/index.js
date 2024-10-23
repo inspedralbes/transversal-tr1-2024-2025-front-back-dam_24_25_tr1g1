@@ -6,8 +6,8 @@ app.use(express.json());
 
 const config = {
     host: 'localhost',
-    user: 'root',
-    password: '',
+    user: 'a20erigomvil_grillgrab',
+    password: 'GrillGrab123!',
     database: 'a20erigomvil_grillgrab',
     port: 3306 
 };
@@ -55,10 +55,51 @@ app.get('/getProd/:id', async (req, res) => {
     }
 });
 
+app.put('/modProd/:id', async (req, res) => {
+    console.log("modProd");
+    const id = req.params.id;
+    const prod = req.body;
+
+    if (prod.nom != null && prod.nom != "" && prod.descripcio != null && prod.descripcio != "" && prod.fotoRuta != null && prod.fotoRuta != "" && prod.preu != null && prod.preu != ""&& prod.stock != null && prod.stock != "" && prod.category != null && prod.category != "") {
+        try {
+            const connection = await mysql.createConnection(config);
+
+            const updateQuery = 'UPDATE productes SET nom = ?, descripcio = ?, fotoRuta = ?, preu = ?, oferta = ?, stock = ?, category = ?, halal = ?, vegan = ?, gluten = ?, lactosa = ?, crustacis = ? WHERE id = ?;';
+
+            await connection.execute(updateQuery, [
+                prod.nom,
+                prod.descripcio,
+                prod.fotoRuta,
+                prod.preu,
+                prod.oferta,
+                prod.stock,
+                prod.category,
+                prod.halal,
+                prod.vegan,
+                prod.gluten,
+                prod.lactosa,
+                prod.crustacis,
+                id
+            ]);
+
+            const [rows] = await connection.execute('SELECT * FROM productes');
+            res.json(rows);
+
+            // Close the database connection
+            await connection.end();
+
+        } catch (err) {
+            console.error('Error MySQL', err);
+            res.status(500).send('Error updating product');
+        }
+    } else {
+        res.json("Na puede estar vacio");
+    }
+});
+
 app.put('/addProd', async (req, res) => {
     console.log("addProd")
     const prod = req.body 
-    
     try {
         const connection = await mysql.createConnection(config);
 
