@@ -117,6 +117,34 @@ app.put('/addCat', async (req, res) => {
     }
 });
 
+app.delete('/delCat/:id', async (req, res) => {
+    const id = req.params.id;
+    console.log("delCat")
+    
+    try {
+        const connection = await mysql.createConnection(config);
+
+        const [rows] = await connection.execute('SELECT * FROM productes WHERE category = ' + id);
+
+        console.log(rows.length)
+
+        if(rows.length == 0){
+            await connection.execute('DELETE FROM categories WHERE id = ' + id);
+
+            res.json("borrao");
+        }
+        else{
+            res.json("no puedes");
+        }
+        
+
+    } catch (err) {
+        console.error('Error MySQL', err)
+        res.status(500).send('Error data')
+    }
+    
+    });
+
 app.listen(25959, () => {
     console.log('localhost:25959')
 });
