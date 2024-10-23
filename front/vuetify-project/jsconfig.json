@@ -16,5 +16,9 @@
       "dom.iterable",
       "scripthost"
     ]
-  }
+  },
+  "exclude": [
+    "src/pages/addCategory.vue",
+    "src/pages/weqwe.vue"
+  ]
 }
