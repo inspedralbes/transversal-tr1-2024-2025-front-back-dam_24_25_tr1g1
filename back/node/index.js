@@ -70,6 +70,27 @@ app.put('/addProd', async (req, res) => {
     }
 });
 
+app.get('/getCat', async (req, res) => {
+    console.log('getProd')
+
+    try {
+        connection = await mysql.createConnection(config);
+
+        const [rows, fields] = await connection.execute('SELECT * FROM categories');
+
+        const categories = rows;
+
+        res.json(categories);
+    } catch (err) {
+        console.error('Error MySQL', err)
+        res.status(500).send('Error data')
+    } finally {
+        if (connection) {
+            await connection.end()
+        }
+    }
+});
+
 app.listen(25959, () => {
     console.log('localhost:25959')
 });
