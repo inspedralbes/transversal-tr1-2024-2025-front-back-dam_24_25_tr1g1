@@ -6,8 +6,8 @@ app.use(express.json());
 
 const config = {
     host: 'localhost',
-    user: 'a20erigomvil_grillgrab',
-    password: 'GrillGrab123!',
+    user: 'root',
+    password: '',
     database: 'a20erigomvil_grillgrab',
     port: 3306 
 };
@@ -19,6 +19,28 @@ app.get('/getProd', async (req, res) => {
         connection = await mysql.createConnection(config);
 
         const [rows, fields] = await connection.execute('SELECT * FROM productes');
+
+        const productos = rows;
+
+        res.json(productos);
+    } catch (err) {
+        console.error('Error MySQL', err)
+        res.status(500).send('Error data')
+    } finally {
+        if (connection) {
+            await connection.end()
+        }
+    }
+});
+
+app.get('/getProd/:id', async (req, res) => {
+    const id = req.params.id;
+    console.log('getOneProd')
+
+    try {
+        connection = await mysql.createConnection(config);
+
+        const [rows, fields] = await connection.execute('SELECT * FROM productes WHERE id = ' + id);
 
         const productos = rows;
 
