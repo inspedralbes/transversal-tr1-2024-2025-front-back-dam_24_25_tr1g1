@@ -4,7 +4,7 @@
       <v-toolbar-title>Productes</v-toolbar-title>
     </v-app-bar>
 
-  
+    <v-btn color="primary" :to="'/createProduct'">Crear producte</v-btn>
   <v-container class="fill-height">
     <div >
       <div

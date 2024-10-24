@@ -11,7 +11,13 @@ import 'vuetify/styles'
 // Composables
 import { createVuetify } from 'vuetify'
 
-// https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
+import { VNumberInput } from 'vuetify/labs/VNumberInput'
+
 export default createVuetify({
-  
+  components: {
+    VNumberInput,
+  },
 })
+
+
+
