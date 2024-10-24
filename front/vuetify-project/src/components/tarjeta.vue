@@ -13,6 +13,10 @@
                 <v-img src="../assets/lactosa.png" v-if="product.lactosa==1"></v-img>
                 <v-img src="../assets/crustacis.png" v-if="product.crustacais==1"></v-img>
               </div>
+              <v-card-actions>
+                <v-btn color="primary" :to="'/editProduct/'+product.id">Edit</v-btn>
+                <v-btn color="error" @click="$emit('delete', product)">Delete</v-btn>
+              </v-card-actions>
             </v-card>
 </template>
 <script>
