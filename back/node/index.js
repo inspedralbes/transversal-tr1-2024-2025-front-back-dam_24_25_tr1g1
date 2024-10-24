@@ -328,6 +328,42 @@ app.delete('/delCat/:id', async (req, res) => {
         }
     });
 
+    app.put('/modComan/:id', async (req, res) => {
+        const id = req.params.id;
+        console.log("modifComan")
+        const prod = req.body
+    
+        if (prod.contingut != null && prod.contingut != "" && prod.estat != null && prod.estat != "" && prod.client != null && prod.client != "") {
+        
+        try {
+            const connection = await mysql.createConnection(config);
+    
+            const insertQuery = `
+                UPDATE comandes SET data = ?, contingut = ?, estat = ?, client = ?  WHERE id = ?
+            `;
+    
+            await connection.execute(insertQuery, [
+                prod.data,
+                prod.contingut,
+                prod.estat,
+                prod.client,
+                id
+            ]);
+    
+            const [rows] = await connection.execute('SELECT * FROM comandes');
+    
+            res.json(rows);
+    
+        } catch (err) {
+            console.error('Error MySQL', err)
+            res.status(500).send('Error data')
+        }
+        }
+         else {
+        res.json("Na puede estar vacio");
+        }
+    });
+
 app.listen(26968, () => {
     console.log('localhost:26968')
 });
