@@ -135,6 +135,28 @@ app.post('/addProd', async (req, res) => {
     }
 });
 
+app.delete('/delProd/:id', async (req, res) => {
+    const id = req.params.id;
+    console.log("delProd")
+    
+    try {
+        const connection = await mysql.createConnection(config);
+
+        await connection.execute('DELETE FROM productes WHERE id = ' + id);
+
+        const [rows, fields] = await connection.execute('SELECT * FROM productes');
+
+        const categories = rows;
+
+        res.json(categories);
+
+    } catch (err) {
+        console.error('Error MySQL', err)
+        res.status(500).send('Error data')
+    }
+    
+    });
+
 app.get('/getCat', async (req, res) => {
     console.log('getCat')
 
