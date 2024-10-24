@@ -1,8 +1,12 @@
+const cons = require('cors')
+const express = require('express')
+
 const express = require('express');
 const app = express();
 const mysql = require('mysql2/promise');
 
-app.use(express.json()); 
+app.use(express.json());
+app.use(cors())
 
 const config = {
     host: 'localhost',
@@ -206,6 +210,27 @@ app.delete('/delCat/:id', async (req, res) => {
         res.status(500).send('Error data')
     }
     
+    });
+
+    app.get('/getComan', async (req, res) => {
+        console.log('getComan')
+    
+        try {
+            connection = await mysql.createConnection(config);
+    
+            const [rows, fields] = await connection.execute('SELECT * FROM comandes');
+    
+            const productos = rows;
+    
+            res.json(productos);
+        } catch (err) {
+            console.error('Error MySQL', err)
+            res.status(500).send('Error data')
+        } finally {
+            if (connection) {
+                await connection.end()
+            }
+        }
     });
 
 app.listen(25958, () => {
