@@ -182,6 +182,33 @@ app.post('/addCat', async (req, res) => {
     }
 });
 
+app.put('/modCat/:id', async (req, res) => {
+    const id = req.params.id;
+    console.log("modifCat")
+    const prod = req.body 
+    
+    try {
+        const connection = await mysql.createConnection(config);
+
+        const insertQuery = `
+            UPDATE categories SET nom = ? WHERE id = ?
+        `;
+
+        await connection.execute(insertQuery, [
+            prod.nom,
+            id
+        ]);
+
+        const [rows] = await connection.execute('SELECT * FROM categories');
+
+        res.json(rows);
+
+    } catch (err) {
+        console.error('Error MySQL', err)
+        res.status(500).send('Error data')
+    }
+});
+
 app.delete('/delCat/:id', async (req, res) => {
     const id = req.params.id;
     console.log("delCat")
