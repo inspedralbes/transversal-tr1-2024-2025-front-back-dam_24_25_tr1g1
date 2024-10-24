@@ -72,7 +72,8 @@ app.post('/addProd', async (req, res) => {
         await connection.execute(insertQuery, [
             prod.nom,
             prod.descripcio,
-            prod.fotoRuta,
+            null,
+            // prod.fotoRuta,
             prod.preu,
             prod.oferta,
             prod.stock,
@@ -112,7 +113,8 @@ app.put('/modProd/:id', async (req, res) => {
             await connection.execute(updateQuery, [
                 prod.nom,
                 prod.descripcio,
-                prod.fotoRuta,
+                // prod.fotoRuta,
+                null,
                 prod.preu,
                 prod.oferta,
                 prod.stock,
