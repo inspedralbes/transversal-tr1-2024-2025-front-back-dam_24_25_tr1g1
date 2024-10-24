@@ -1,6 +1,4 @@
-const cons = require('cors')
-const express = require('express')
-
+const cors = require('cors')
 const express = require('express');
 const app = express();
 const mysql = require('mysql2/promise');
@@ -101,7 +99,7 @@ app.put('/modProd/:id', async (req, res) => {
     }
 });
 
-app.put('/addProd', async (req, res) => {
+app.post('/addProd', async (req, res) => {
     console.log("addProd")
     const prod = req.body 
     try {
@@ -158,7 +156,7 @@ app.get('/getCat', async (req, res) => {
     }
 });
 
-app.put('/addCat', async (req, res) => {
+app.post('/addCat', async (req, res) => {
     console.log("addCat")
     const prod = req.body 
     
@@ -233,6 +231,6 @@ app.delete('/delCat/:id', async (req, res) => {
         }
     });
 
-app.listen(25958, () => {
+app.listen(26968, () => {
     console.log('localhost:26968')
 });
