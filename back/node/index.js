@@ -57,51 +57,10 @@ app.get('/getProd/:id', async (req, res) => {
     }
 });
 
-app.put('/modProd/:id', async (req, res) => {
-    console.log("modProd");
-    const id = req.params.id;
-    const prod = req.body;
-
-    if (prod.nom != null && prod.nom != "" && prod.descripcio != null && prod.descripcio != "" && prod.fotoRuta != null && prod.fotoRuta != "" && prod.preu != null && prod.preu != ""&& prod.stock != null && prod.stock != "" && prod.category != null && prod.category != "") {
-        try {
-            const connection = await mysql.createConnection(config);
-
-            const updateQuery = 'UPDATE productes SET nom = ?, descripcio = ?, fotoRuta = ?, preu = ?, oferta = ?, stock = ?, category = ?, halal = ?, vegan = ?, gluten = ?, lactosa = ?, crustacis = ? WHERE id = ?;';
-
-            await connection.execute(updateQuery, [
-                prod.nom,
-                prod.descripcio,
-                prod.fotoRuta,
-                prod.preu,
-                prod.oferta,
-                prod.stock,
-                prod.category,
-                prod.halal,
-                prod.vegan,
-                prod.gluten,
-                prod.lactosa,
-                prod.crustacis,
-                id
-            ]);
-
-            const [rows] = await connection.execute('SELECT * FROM productes');
-            res.json(rows);
-
-            // Close the database connection
-            await connection.end();
-
-        } catch (err) {
-            console.error('Error MySQL', err);
-            res.status(500).send('Error updating product');
-        }
-    } else {
-        res.json("Na puede estar vacio");
-    }
-});
-
 app.post('/addProd', async (req, res) => {
     console.log("addProd")
-    const prod = req.body 
+    const prod = req.body
+    if (prod.nom != null && prod.nom != "" && prod.descripcio != null && prod.descripcio != "" && prod.fotoRuta != null && prod.fotoRuta != "" && prod.preu != null && prod.preu != ""&& prod.stock != null && prod.stock != "" && prod.category != null && prod.category != "") {
     try {
         const connection = await mysql.createConnection(config);
 
@@ -133,6 +92,51 @@ app.post('/addProd', async (req, res) => {
         console.error('Error MySQL', err)
         res.status(500).send('Error data')
     }
+    }
+     else {
+    res.json("Na puede estar vacio");
+    }
+});
+
+app.put('/modProd/:id', async (req, res) => {
+    console.log("modProd");
+    const id = req.params.id;
+    const prod = req.body;
+
+    if (prod.nom != null && prod.nom != "" && prod.descripcio != null && prod.descripcio != "" && prod.fotoRuta != null && prod.fotoRuta != "" && prod.preu != null && prod.preu != ""&& prod.stock != null && prod.stock != "" && prod.category != null && prod.category != "") {
+        try {
+            const connection = await mysql.createConnection(config);
+
+            const updateQuery = 'UPDATE productes SET nom = ?, descripcio = ?, fotoRuta = ?, preu = ?, oferta = ?, stock = ?, category = ?, halal = ?, vegan = ?, gluten = ?, lactosa = ?, crustacis = ? WHERE id = ?;';
+
+            await connection.execute(updateQuery, [
+                prod.nom,
+                prod.descripcio,
+                prod.fotoRuta,
+                prod.preu,
+                prod.oferta,
+                prod.stock,
+                prod.category,
+                prod.halal,
+                prod.vegan,
+                prod.gluten,
+                prod.lactosa,
+                prod.crustacis,
+                id
+            ]);
+
+            const [rows] = await connection.execute('SELECT * FROM productes');
+            res.json(rows);
+
+            await connection.end();
+
+        } catch (err) {
+            console.error('Error MySQL', err);
+            res.status(500).send('Error updating product');
+        }
+    } else {
+        res.json("Na puede estar vacio");
+    }
 });
 
 app.get('/getCat', async (req, res) => {
@@ -158,7 +162,8 @@ app.get('/getCat', async (req, res) => {
 
 app.post('/addCat', async (req, res) => {
     console.log("addCat")
-    const prod = req.body 
+    const prod = req.body
+    if (prod.nom != null && prod.nom != "") {
     
     try {
         const connection = await mysql.createConnection(config);
@@ -180,12 +185,17 @@ app.post('/addCat', async (req, res) => {
         console.error('Error MySQL', err)
         res.status(500).send('Error data')
     }
+    } else {
+    res.json("Na puede estar vacio");
+    }
 });
 
 app.put('/modCat/:id', async (req, res) => {
     const id = req.params.id;
     console.log("modifCat")
-    const prod = req.body 
+    const prod = req.body
+
+    if (prod.nom != null && prod.nom != "") {
     
     try {
         const connection = await mysql.createConnection(config);
@@ -206,6 +216,10 @@ app.put('/modCat/:id', async (req, res) => {
     } catch (err) {
         console.error('Error MySQL', err)
         res.status(500).send('Error data')
+    }
+    }
+     else {
+    res.json("Na puede estar vacio");
     }
 });
 
@@ -255,6 +269,38 @@ app.delete('/delCat/:id', async (req, res) => {
             if (connection) {
                 await connection.end()
             }
+        }
+    });
+
+    app.post('/addComan', async (req, res) => {
+        console.log("addComan")
+        const prod = req.body
+        if (prod.contingut != null && prod.contingut != "" && prod.estat != null && prod.estat != "" && prod.client != null && prod.client != "") {
+        try {
+            const connection = await mysql.createConnection(config);
+    
+            const insertQuery = `
+                INSERT INTO comandes (contingut, estat, client)
+                VALUES (?, ?, ?)
+            `;
+    
+            await connection.execute(insertQuery, [
+                prod.contingut,
+                prod.estat,
+                prod.client
+            ]);
+    
+            const [rows] = await connection.execute('SELECT * FROM comandes');
+    
+            res.json(rows);
+    
+        } catch (err) {
+            console.error('Error MySQL', err)
+            res.status(500).send('Error data')
+        }
+        }
+         else {
+        res.json("Na puede estar vacio");
         }
     });
 
