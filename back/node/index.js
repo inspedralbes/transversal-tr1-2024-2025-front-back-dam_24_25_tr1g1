@@ -208,6 +208,6 @@ app.delete('/delCat/:id', async (req, res) => {
     
     });
 
-app.listen(25959, () => {
-    console.log('localhost:25959')
+app.listen(25958, () => {
+    console.log('localhost:26968')
 });
