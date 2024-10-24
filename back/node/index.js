@@ -101,7 +101,8 @@ app.put('/modProd/:id', async (req, res) => {
 
 app.post('/addProd', async (req, res) => {
     console.log("addProd")
-    const prod = req.body 
+    const prod = req.body
+    if (prod.nom != null && prod.nom != "" && prod.descripcio != null && prod.descripcio != "" && prod.fotoRuta != null && prod.fotoRuta != "" && prod.preu != null && prod.preu != ""&& prod.stock != null && prod.stock != "" && prod.category != null && prod.category != "") {
     try {
         const connection = await mysql.createConnection(config);
 
@@ -133,6 +134,10 @@ app.post('/addProd', async (req, res) => {
         console.error('Error MySQL', err)
         res.status(500).send('Error data')
     }
+    }
+     else {
+    res.json("Na puede estar vacio");
+    }
 });
 
 app.get('/getCat', async (req, res) => {
@@ -158,7 +163,8 @@ app.get('/getCat', async (req, res) => {
 
 app.post('/addCat', async (req, res) => {
     console.log("addCat")
-    const prod = req.body 
+    const prod = req.body
+    if (prod.nom != null && prod.nom != "") {
     
     try {
         const connection = await mysql.createConnection(config);
@@ -180,12 +186,17 @@ app.post('/addCat', async (req, res) => {
         console.error('Error MySQL', err)
         res.status(500).send('Error data')
     }
+    } else {
+    res.json("Na puede estar vacio");
+    }
 });
 
 app.put('/modCat/:id', async (req, res) => {
     const id = req.params.id;
     console.log("modifCat")
-    const prod = req.body 
+    const prod = req.body
+
+    if (prod.nom != null && prod.nom != "") {
     
     try {
         const connection = await mysql.createConnection(config);
@@ -206,6 +217,10 @@ app.put('/modCat/:id', async (req, res) => {
     } catch (err) {
         console.error('Error MySQL', err)
         res.status(500).send('Error data')
+    }
+    }
+     else {
+    res.json("Na puede estar vacio");
     }
 });
 
