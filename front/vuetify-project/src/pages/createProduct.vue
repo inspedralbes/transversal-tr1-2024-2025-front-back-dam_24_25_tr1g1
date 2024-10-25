@@ -35,7 +35,6 @@
             <v-file-input
                 label="Imatge"
                 variant="solo"
-                v-model="imatge"
                 accept="image/*"
             ></v-file-input>
             <v-checkbox label="halal" v-model="halal"></v-checkbox>
@@ -66,7 +65,6 @@ const vegà = ref(false);
 const gluten = ref(false);
 const lactosa = ref(false);
 const crustacis = ref(false);
-const imatge = ref(null);
 const route = useRoute(); 
 const router = useRouter();
 
@@ -87,6 +85,7 @@ onMounted(async () => {
   const handleSubmit = async () => {
     const formData = new FormData();
 
+    
     formData.append('nom', productName.value);
     formData.append('descripcio', descripció.value);
     formData.append('preu', price.value);
@@ -98,13 +97,12 @@ onMounted(async () => {
     formData.append('gluten', gluten.value ? 1 : 0);
     formData.append('lactosa', lactosa.value ? 1 : 0);
     formData.append('crustacis', crustacis.value ? 1 : 0);
-    formData.append('imatge', imatge.value);
 
     // Solo para verificación:
     for (let [key, value] of formData.entries()) {
         console.log(key, value);
     }
-
-    await callPostProduct(formData);
+    const imageInput = document.querySelector('input[type="file"]');
+    await callPostProduct(formData,imageInput.files[0] );
 };
 </script>

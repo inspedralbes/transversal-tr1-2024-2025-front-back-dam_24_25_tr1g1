@@ -23,13 +23,19 @@ export async function callGetProductById(id) {
     return product[0];
 }
 
-export async function callPostProduct(product) {
-    console.log("product",product);
+export async function callPostProduct(product, image) {
+    console.log("product",image);
+    const formData = new FormData();
+    for (const key in product) {
+        formData.append(key, product[key]);
+    }
+    formData.append('imatge', image);    
     const response = await fetch(`${import.meta.env.VITE_API_BACK}/addProd`, {
         method: 'POST',
-        body: product
+        body: formData,
+ 
     });
-    console.log("qwedsqweqwe",response);
+
     const newProduct = await response.json();
     return newProduct;
 }

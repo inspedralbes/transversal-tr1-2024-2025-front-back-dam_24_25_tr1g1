@@ -73,14 +73,12 @@ app.get('/getProd/:id', async (req, res) => {
     }
 });
 
-app.post('/addProd', upload.single('foto'), async (req, res) => {
+app.post('/addProd', upload.single('imatge'), async (req, res) => {
     console.log("addProd");
     const prod = req.body;
-    const foto = req.file;
+    
 
-    console.log(prod, foto)
-
-    // if (prod.nom != null && prod.nom != "" && prod.descripcio != null && prod.descripcio != "" && prod.preu != null && prod.preu != ""&& prod.stock != null && prod.stock != "" && prod.category != null && prod.category != "") {
+    if (prod.nom != null && prod.nom != "" && prod.descripcio != null && prod.descripcio != "" && prod.preu != null && prod.preu != ""&& prod.stock != null && prod.stock != "" && prod.category != null && prod.category != "") {
         try {
             const connection = await mysql.createConnection(config);
 
@@ -91,7 +89,7 @@ app.post('/addProd', upload.single('foto'), async (req, res) => {
 
             //const fotoRuta = `./uploads/${prod.imatge.filename}`;
 
-            const fotoRuta = `./uploads/ddsdasdasdas.img`;
+            const fotoRuta = prod.imatge.path;
 
 
             await connection.execute(insertQuery, [
@@ -116,10 +114,10 @@ app.post('/addProd', upload.single('foto'), async (req, res) => {
             console.error('Error MySQL', err);
             res.status(500).send('Error data');
         }
-    //}
-    //  else {
-    // res.json("Na puede estar vacio");
-    // }
+    }
+     else {
+    res.json("Na puede estar vacio");
+    }
 });
 
 app.put('/modProd/:id', async (req, res) => {
