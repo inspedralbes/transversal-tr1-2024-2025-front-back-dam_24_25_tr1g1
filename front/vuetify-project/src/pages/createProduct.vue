@@ -76,7 +76,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { callPostProduct, callGetCategories } from '../../communicationManager.js';
+import { callPostProduct, callGetCategories } from '../services/communicationManager.js';
 import { useRoute, useRouter } from 'vue-router';
 
 const categories = ref([]);

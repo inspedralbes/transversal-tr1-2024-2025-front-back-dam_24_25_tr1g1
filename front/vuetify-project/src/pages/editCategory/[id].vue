@@ -10,7 +10,7 @@
   <script setup>
   import { ref, onMounted } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
-  import { callPutCategory } from '../../../communicationManager.js';
+  import { callPutCategory } from '../../services/communicationManager.js';
   
   const route = useRoute(); // Necesario para acceder a los parámetros de la ruta
   const router = useRouter();

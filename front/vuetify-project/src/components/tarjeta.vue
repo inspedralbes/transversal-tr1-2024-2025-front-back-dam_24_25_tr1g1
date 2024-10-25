@@ -20,7 +20,7 @@
             </v-card>
 </template>
 <script>
-import {callDeleteProduct} from '../../communicationManager.js'
+import {callDeleteProduct} from '../services/communicationManager.js'
 export default {
     name: 'Tarjeta',
     props: {

@@ -37,7 +37,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { callGetCategories, callPostCategory, callDeleteCategory } from '../../communicationManager.js';
+import { callGetCategories, callPostCategory, callDeleteCategory } from '../services/communicationManager.js';
 
 let categories = ref([]);
 let newCategory = ref('');

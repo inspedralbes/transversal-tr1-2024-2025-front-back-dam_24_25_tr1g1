@@ -26,7 +26,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import  tarjeta  from "../components/tarjeta.vue";
-import { callGetCategories, callGetProducts } from "../../communicationManager.js";
+import { callGetCategories, callGetProducts } from "../services/communicationManager.js";
 
 
 const categories = ref([]);

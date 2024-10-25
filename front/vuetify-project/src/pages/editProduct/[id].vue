@@ -44,7 +44,7 @@
     </v-container>
 </template>
 <script setup>
-import { callGetCategories, callGetProductById, callPutProduct } from '../../../communicationManager.js';
+import { callGetCategories, callGetProductById, callPutProduct } from '../../services/communicationManager.js';
 import { useRoute, useRouter } from 'vue-router';
 import { ref,onMounted } from 'vue';
 
