@@ -364,6 +364,26 @@ app.delete('/delCat/:id', async (req, res) => {
         }
     });
 
+    app.delete('/delComan/:id', async (req, res) => {
+        const id = req.params.id;
+        console.log("delComan")
+        
+        try {
+            const connection = await mysql.createConnection(config);
+
+            await connection.execute('DELETE FROM comandes WHERE id = ' + id);
+
+            const [rows] = await connection.execute('SELECT * FROM comandes');
+    
+            res.json(rows);
+
+        } catch (err) {
+            console.error('Error MySQL', err)
+            res.status(500).send('Error data')
+        }
+        
+    });
+
 app.listen(26968, () => {
     console.log('localhost:26968')
 });
