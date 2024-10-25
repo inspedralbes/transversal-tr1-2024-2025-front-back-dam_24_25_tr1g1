@@ -94,11 +94,11 @@ import { ref,onMounted } from 'vue';
                 oferta: product.value.oferta == 0 ? null : product.value.oferta,
                 stock: product.value.stock,
                 category: categoriesFull.value.filter(category => category.nom === product.value.category)[0].id,
-                halal: product.value.halal,
-                vegan: product.value.vegan,
-                gluten: product.value.gluten,
-                lactosa: product.value.lactosa,
-                crustacis: product.value.crustacais
+                halal: product.value.halal?1:0,
+                vegan: product.value.vegan?1:0,
+                gluten: product.value.gluten?1:0,
+                lactosa: product.value.lactosa?1:0,
+                crustacis: product.value.crustacais?1:0
             };
 
         const imageInput = document.querySelector('input[type="file"]');
