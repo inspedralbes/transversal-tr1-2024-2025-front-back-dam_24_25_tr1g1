@@ -32,7 +32,7 @@
             :items="categories"
             v-model="product.category"
             ></v-select>
-            <v-file-input label="Imatge" variant="solo"></v-file-input>
+            <v-file-input label="Imatge" variant="solo" accept="image/*"></v-file-input>
             <v-checkbox label="halal" v-model="product.halal"></v-checkbox>
             <v-checkbox label="vegà" v-model="product.vegan"></v-checkbox>
             <v-checkbox label="conté gluten" v-model="product.gluten"></v-checkbox>
@@ -47,6 +47,7 @@
 import { callGetCategories, callGetProductById, callPutProduct } from '../../../communicationManager.js';
 import { useRoute, useRouter } from 'vue-router';
 import { ref,onMounted } from 'vue';
+
     const categoriesFull=ref([]);
     const product=ref({});
     const route = useRoute(); // Necesario para acceder a los parámetros de la ruta
@@ -80,25 +81,31 @@ import { ref,onMounted } from 'vue';
         
         console.log("Montate en mi motora",categories.value);
     });
-    function handleSubmit() {
-        let dataAdapted  = new FormData();
-        dataAdapted.append('nom', product.value.nom);
-        dataAdapted.append('descripcio', product.value.descripcio);
-        dataAdapted.append('preu', product.value.preu);
-        product.value.oferta==0?product.value.oferta=null:product.value.oferta;
-        dataAdapted.append('oferta', product.value.oferta);
-        dataAdapted.append('stock', product.value.stock);
-        product.value.category=categoriesFull.value.filter(category => category.nom === product.value.category)[0].id;
-        dataAdapted.append('category', product.value.category);
-        dataAdapted.append('halal', product.value.halal);
-        dataAdapted.append('vegan', product.value.vegan);
-        dataAdapted.append('gluten', product.value.gluten);
-        dataAdapted.append('lactosa', product.value.lactosa);
-        dataAdapted.append('crustacis', product.value.crustacais);
-        dataAdapted.append('imatge', product.value.imatge);
+    async function handleSubmit() {
+        if(product.value.nom==null || product.value.descripcio==null || product.value.preu==null || product.value.stock==null || product.value.category==null ){
+            alert(`Falten camps per omplir`);
+            return;
+        } else {
+            let dataAdapted = {
+                id:route.params.id,
+                nom: product.value.nom,
+                descripcio: product.value.descripcio,
+                preu: product.value.preu,
+                oferta: product.value.oferta == 0 ? null : product.value.oferta,
+                stock: product.value.stock,
+                category: categoriesFull.value.filter(category => category.nom === product.value.category)[0].id,
+                halal: product.value.halal,
+                vegan: product.value.vegan,
+                gluten: product.value.gluten,
+                lactosa: product.value.lactosa,
+                crustacis: product.value.crustacais
+            };
 
-        callPutProduct(dataAdapted);
+        const imageInput = document.querySelector('input[type="file"]');
+        await callPutProduct(dataAdapted,imageInput.files[0] );
         router.push({ path: '/products' });
+        }
+        
         // Add your form submission logic here, e.g., send data to an API
     };
 

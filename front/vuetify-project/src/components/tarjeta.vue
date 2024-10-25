@@ -1,6 +1,6 @@
 <template>
 <v-card>
-              <v-img :src="product.fotoRuta" alt="Product Image" />
+              <v-img :src="apiUrl+'/' + product.fotoRuta" alt="Product Image" />
               <v-card-title>{{ product.nom }}</v-card-title>
               <v-card-text>{{ product.descripcio }}</v-card-text>
               <v-card-text>Preu original {{ product.preu.toFixed(2) }} €</v-card-text>
@@ -27,6 +27,11 @@ export default {
         product: {
             type: Object,
             required: true
+        }
+    },
+    data() {
+        return {
+          apiUrl: import.meta.env.VITE_API_BACK
         }
     },
     methods: {

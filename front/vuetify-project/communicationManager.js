@@ -26,9 +26,17 @@ export async function callGetProductById(id) {
 export async function callPostProduct(product, image) {
     console.log("product",image);
     const formData = new FormData();
-    for (const key in product) {
-        formData.append(key, product[key]);
-    }
+    formData.append('nom', product.nom);
+    formData.append('descripcio', product.descripcio);
+    formData.append('preu', product.preu);
+    formData.append('oferta', product.offerPrice || null);
+    formData.append('stock', product.stock);
+    formData.append('category', product.category);
+    formData.append('halal', product.halal);
+    formData.append('vegan', product.vegan);
+    formData.append('gluten', product.gluten);
+    formData.append('lactosa', product.lactosa);
+    formData.append('crustacis', product.crustacis);
     formData.append('imatge', image);    
     const response = await fetch(`${import.meta.env.VITE_API_BACK}/addProd`, {
         method: 'POST',
@@ -40,13 +48,24 @@ export async function callPostProduct(product, image) {
     return newProduct;
 }
 
-export async function callPutProduct(product) {
-    const response = await fetch(`${import.meta.env.VITE_API_BACK}/products/${product.id}`, {
+export async function callPutProduct(product, image) {
+    const formData = new FormData();
+    formData.append('nom', product.nom);
+    formData.append('descripcio', product.descripcio);
+    formData.append('preu', product.preu);
+    formData.append('oferta', product.offerPrice || null);
+    formData.append('stock', product.stock);
+    formData.append('category', product.category);
+    formData.append('halal', product.halal);
+    formData.append('vegan', product.vegan);
+    formData.append('gluten', product.gluten);
+    formData.append('lactosa', product.lactosa);
+    formData.append('crustacis', product.crustacis);
+    formData.append('imatge', image);
+    console.log("product",product);
+    const response = await fetch(`${import.meta.env.VITE_API_BACK}/modProd/${product.id}`, {
         method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(product)
+        body: formData
     });
 
     const updatedProduct = await response.json();

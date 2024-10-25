@@ -1,3 +1,30 @@
+
+<!-- /**
+ * This Vue component provides a form for creating a new product. 
+ * It includes fields for product name, description, price, offer price, stock, category, image, and various checkboxes for product attributes.
+ * 
+ * Template:
+ * - v-container: Container for the form.
+ * - v-form: Form element with a submit handler.
+ * - v-text-field: Input fields for product name and description.
+ * - v-number-input: Input fields for price, offer price, and stock.
+ * - v-select: Dropdown for selecting a category.
+ * - v-file-input: Input for uploading an image.
+ * - v-checkbox: Checkboxes for product attributes (halal, vegan, gluten, lactosa, crustacis).
+ * - v-btn: Submit button.
+ * 
+ * Script:
+ * - Imports necessary functions and hooks from Vue and a communication manager.
+ * - Defines reactive variables for form fields and categories.
+ * - Fetches categories on component mount and populates the category dropdown.
+ * - handleSubmit: Function to handle form submission, constructs form data and calls an API to post the product.
+ * 
+ * Dependencies:
+ * - Vue 3
+ * - Vuetify
+ * - communicationManager.js for API calls
+ * - vue-router for navigation
+ */ -->
 <template>
     <v-container>
         <v-form @submit.prevent="handleSubmit" id="form" class="form">
@@ -83,26 +110,34 @@ onMounted(async () => {
 
 
   const handleSubmit = async () => {
-    const formData = new FormData();
+    if(productName.value==null || descripció.value==null || price.value==null || stock.value==null || valueToSend.value==null || !document.querySelector('input[type="file"]').files.length ){
+        alert("Falten camps per omplir");
+    } else {
+        
+    const formData = {
+        nom: productName.value,
+        descripcio: descripció.value,
+        preu: price.value,
+        oferta: offerPrice.value || null,
+        stock: stock.value,
+        category: categoriesFull.value.find(category => category.nom === valueToSend.value).id,
+        halal: halal.value ? 1 : 0,
+        vegan: vegà.value ? 1 : 0,
+        gluten: gluten.value ? 1 : 0,
+        lactosa: lactosa.value ? 1 : 0,
+        crustacis: crustacis.value ? 1 : 0
+    };
+
 
     
-    formData.append('nom', productName.value);
-    formData.append('descripcio', descripció.value);
-    formData.append('preu', price.value);
-    formData.append('oferta', offerPrice.value || null);
-    formData.append('stock', stock.value);
-    formData.append('category', categoriesFull.value.find(category => category.nom === valueToSend.value).id);
-    formData.append('halal', halal.value ? 1 : 0);
-    formData.append('vegan', vegà.value ? 1 : 0);
-    formData.append('gluten', gluten.value ? 1 : 0);
-    formData.append('lactosa', lactosa.value ? 1 : 0);
-    formData.append('crustacis', crustacis.value ? 1 : 0);
+ 
 
     // Solo para verificación:
-    for (let [key, value] of formData.entries()) {
-        console.log(key, value);
-    }
+    
     const imageInput = document.querySelector('input[type="file"]');
     await callPostProduct(formData,imageInput.files[0] );
+    router.push({ path: '/products' });
+}
+
 };
 </script>

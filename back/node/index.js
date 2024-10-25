@@ -7,7 +7,7 @@ const path = require('path');
 
 app.use(express.json());
 app.use(cors());
-
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 const config = {
     host: 'localhost',
     user: 'a20erigomvil_grillgrab',
