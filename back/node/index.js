@@ -2,9 +2,11 @@ const cors = require('cors')
 const express = require('express');
 const app = express();
 const mysql = require('mysql2/promise');
+const multer = require('multer');
+const path = require('path');
 
 app.use(express.json());
-app.use(cors())
+app.use(cors());
 
 const config = {
     host: 'localhost',
@@ -13,6 +15,20 @@ const config = {
     database: 'a20erigomvil_grillgrab',
     port: 3306 
 };
+
+
+// Configuración de multer para almacenar las imágenes en una carpeta del servidor
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/'); // Carpeta donde se guardarán las imágenes
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + path.extname(file.originalname)); // Nombre único del archivo
+    }
+});
+
+const upload = multer({ storage: storage });
 
 app.get('/getProd', async (req, res) => {
     console.log('getProd')
@@ -57,46 +73,53 @@ app.get('/getProd/:id', async (req, res) => {
     }
 });
 
-app.post('/addProd', async (req, res) => {
-    console.log("addProd")
-    const prod = req.body
-    if (prod.nom != null && prod.nom != "" && prod.descripcio != null && prod.descripcio != "" && prod.fotoRuta != null && prod.fotoRuta != "" && prod.preu != null && prod.preu != ""&& prod.stock != null && prod.stock != "" && prod.category != null && prod.category != "") {
-    try {
-        const connection = await mysql.createConnection(config);
+app.post('/addProd', upload.single('foto'), async (req, res) => {
+    console.log("addProd");
+    const prod = req.body;
+    const foto = req.file;
 
-        const insertQuery = `
-            INSERT INTO productes (nom, descripcio, fotoRuta, preu, oferta, stock, category, halal, vegan, gluten, lactosa, crustacis)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `;
+    console.log(prod, foto)
 
-        await connection.execute(insertQuery, [
-            prod.nom,
-            prod.descripcio,
-            null,
-            // prod.fotoRuta,
-            prod.preu,
-            prod.oferta,
-            prod.stock,
-            prod.category,
-            prod.halal,
-            prod.vegan,
-            prod.gluten,
-            prod.lactosa,
-            prod.crustacis
-        ]);
+    // if (prod.nom != null && prod.nom != "" && prod.descripcio != null && prod.descripcio != "" && prod.preu != null && prod.preu != ""&& prod.stock != null && prod.stock != "" && prod.category != null && prod.category != "") {
+        try {
+            const connection = await mysql.createConnection(config);
 
-        const [rows] = await connection.execute('SELECT * FROM productes');
+            const insertQuery = `
+                INSERT INTO productes (nom, descripcio, fotoRuta, preu, oferta, stock, category, halal, vegan, gluten, lactosa, crustacis)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `;
 
-        res.json(rows);
+            //const fotoRuta = `./uploads/${prod.imatge.filename}`;
 
-    } catch (err) {
-        console.error('Error MySQL', err)
-        res.status(500).send('Error data')
-    }
-    }
-     else {
-    res.json("Na puede estar vacio");
-    }
+            const fotoRuta = `./uploads/ddsdasdasdas.img`;
+
+
+            await connection.execute(insertQuery, [
+                prod.nom,
+                prod.descripcio,
+                fotoRuta,
+                prod.preu,
+                prod.oferta,
+                prod.stock,
+                prod.category,
+                prod.halal,
+                prod.vegan,
+                prod.gluten,
+                prod.lactosa,
+                prod.crustacis
+            ]);
+
+            const [rows] = await connection.execute('SELECT * FROM productes');
+
+            res.json(rows);
+        } catch (err) {
+            console.error('Error MySQL', err);
+            res.status(500).send('Error data');
+        }
+    //}
+    //  else {
+    // res.json("Na puede estar vacio");
+    // }
 });
 
 app.put('/modProd/:id', async (req, res) => {
