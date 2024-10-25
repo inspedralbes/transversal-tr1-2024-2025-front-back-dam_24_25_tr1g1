@@ -37,24 +37,27 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import categoriesData from '../assets/categories.json';
+import { callGetCategories, callPostCategory, callDeleteCategory } from '../../communicationManager.js';
 
 let categories = ref([]);
 let newCategory = ref('');
 
-onMounted(() => {
-    categories.value = categoriesData.categories;
+onMounted(async () => {
+    categories.value = await callGetCategories();
 });
 
-const addCategory = () => {
-    
+const addCategory = async() => {
+    await callPostCategory(newCategory.value);
+    categories.value=await callGetCategories()
+    newCategory.value="";
 };
 
-const redirectEdit = (id) => {
-    console.log(id);
-};
-const deleteCategory = (id) => {
-    categories.value = categories.value.filter(category => category.id !== id);
+const deleteCategory = async (id) => {
+    let response=await callDeleteCategory(id)
+    if(response=="no puedes"){
+        alert("No pots eliminar una categoria amb productes associats")
+    }
+    categories.vaule=await callGetCategories()
 };
 
 

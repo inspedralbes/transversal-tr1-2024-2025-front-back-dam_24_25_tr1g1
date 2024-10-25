@@ -15,11 +15,12 @@
               </div>
               <v-card-actions>
                 <v-btn color="primary" :to="'/editProduct/'+product.id">Edit</v-btn>
-                <v-btn color="error" @click="$emit('delete', product)">Delete</v-btn>
+                <v-btn color="error" @click="eraseProduct()">Delete</v-btn>
               </v-card-actions>
             </v-card>
 </template>
 <script>
+import {callDeleteProduct} from '../../communicationManager.js'
 export default {
     name: 'Tarjeta',
     props: {
@@ -27,7 +28,13 @@ export default {
             type: Object,
             required: true
         }
+    },
+    methods: {
+      async eraseProduct() {
+       await callDeleteProduct(this.product.id)
+      }
     }
+    
 }
 </script>
 <style scoped>
