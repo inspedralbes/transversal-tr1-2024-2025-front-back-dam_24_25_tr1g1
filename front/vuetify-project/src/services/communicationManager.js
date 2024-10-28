@@ -177,7 +177,14 @@ export async function callPutUser(updatedUser) {
         throw new Error("Usuario no encontrado");
     }
 }
-
+export async function callDeleteUser(id) {
+    const index = usersDatabase.findIndex(user => user.id === id);
+    if (index !== -1) {
+        usersDatabase.splice(index, 1); // Elimina el usuario
+    } else {
+        throw new Error("Usuario no encontrado");
+    }
+}
 
 
 
