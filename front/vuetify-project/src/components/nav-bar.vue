@@ -4,7 +4,7 @@
         <v-spacer></v-spacer>
         <v-btn to="/products">Gestio de productes</v-btn>
         <v-btn to="/categoryAdmin">Gestio de categories</v-btn>
-        <v-btn >Gestio d'usuaris</v-btn>
+        <v-btn to="/userAdmin">Gestio d'usuaris</v-btn>
     </v-app-bar>
 </template>
 

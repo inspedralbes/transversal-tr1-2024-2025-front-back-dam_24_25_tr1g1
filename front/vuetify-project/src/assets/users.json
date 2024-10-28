@@ -1,0 +1,26 @@
+[
+    {
+        "id": 1,
+        "nom": "Tilin",
+        "correu": "tilin@mail.com",
+        "contrasenya": "tilin",
+        "admin": 1,
+        "halal": 0,
+        "vegan": 1,
+        "gluten": 0,
+        "lactosa": 1,
+        "curstacis": 0
+    },
+    {
+        "id": 2,
+        "nom": "Piolin",
+        "correu": "piolin@mail.com",
+        "contrasenya": "piolin",
+        "admin": 1,
+        "halal": 0,
+        "vegan": 1,
+        "gluten": 0,
+        "lactosa": 1,
+        "curstacis": 0
+    }
+]

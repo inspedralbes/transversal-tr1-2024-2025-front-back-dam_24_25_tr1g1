@@ -149,3 +149,39 @@ export async function callDeleteCategory(id) {
     return deletedCategory;
 }
 
+
+// JSON simulado para los usuarios
+import usersData from '../assets/users.json';
+
+export async function callGetUsers() {
+    return usersData;
+}
+
+export async function callGetUserById(id) {
+    return usersData.find(user => user.id === id);
+}
+
+export async function callPutUser(updatedUser) {
+    const index = usersData.findIndex(user => user.id === updatedUser.id);
+    if (index !== -1) {
+        usersData[index] = { ...usersData[index], ...updatedUser };
+        return usersData[index];
+    } else {
+        throw new Error("Usuario no encontrado");
+    }
+}
+
+// Eliminar un usuario
+export async function callDeleteUser(id) {
+    const index = usersData.findIndex(user => user.id === id);
+    if (index !== -1) {
+        const deletedUser = usersData.splice(index, 1);
+        return deletedUser[0];
+    } else {
+        throw new Error("Usuario no encontrado");
+    }
+}
+
+
+
+
