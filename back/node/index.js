@@ -364,6 +364,30 @@ app.delete('/delCat/:id', async (req, res) => {
     
     });
 
+    //USUARIS
+    app.get('/getUsers', async (req, res) => {
+        console.log('getUsers')
+    
+        try {
+            connection = await mysql.createConnection(config);
+    
+            const [rows, fields] = await connection.execute('SELECT * FROM usuaris');
+    
+            const users = rows;
+    
+            res.json(users);
+        } catch (err) {
+            console.error('Error MySQL', err)
+            res.status(500).send('Error data')
+        } finally {
+            if (connection) {
+                await connection.end()
+            }
+        }
+    });
+        
+
+    //COMANDES
     app.get('/getComan', async (req, res) => {
         console.log('getComan')
     
