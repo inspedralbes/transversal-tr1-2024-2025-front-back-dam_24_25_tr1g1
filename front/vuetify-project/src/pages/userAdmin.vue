@@ -1,6 +1,6 @@
 <template>
     <v-container>
-        <h1>Users</h1>
+        <h1>Usuarios</h1>
         <v-list>
             <v-list-item v-for="user in users" :key="user.id">
                 <v-row align="center" justify="space-between" class="w-100">
@@ -17,7 +17,7 @@
                                 <v-icon>mdi-pencil</v-icon>
                             </v-btn>
                             <!-- Botón para eliminar el usuario -->
-                            <v-btn icon @click="deleteUser(user.id)">
+                            <v-btn icon @click="confirmDeleteUser(user.id)">
                                 <v-icon>mdi-delete</v-icon>
                             </v-btn>
                         </v-list-item-action>
@@ -30,7 +30,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { callGetUsers, callPutUser, callDeleteUser } from '../services/communicationManager.js';
+import { callGetUsers, callDeleteUser } from '../services/communicationManager.js';
 
 let users = ref([]);
 
@@ -39,14 +39,17 @@ onMounted(async () => {
     users.value = await callGetUsers();
 });
 
-// Función para eliminar un usuario
-const deleteUser = async (id) => {
-    try {
-        await callDeleteUser(id);
-        // Actualizar la lista de usuarios después de la eliminación
-        users.value = await callGetUsers();
-    } catch (error) {
-        alert("No se puede eliminar el usuario.");
+// Función para confirmar y eliminar un usuario
+const confirmDeleteUser = async (id) => {
+    const confirmed = confirm("¿Estás seguro de que deseas eliminar este usuario?");
+    if (confirmed) {
+        try {
+            await callDeleteUser(id);
+            // Actualizar la lista de usuarios después de la eliminación
+            users.value = await callGetUsers();
+        } catch (error) {
+            alert("No se puede eliminar el usuario.");
+        }
     }
 };
 </script>

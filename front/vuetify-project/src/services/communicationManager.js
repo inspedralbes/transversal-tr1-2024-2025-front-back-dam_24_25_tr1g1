@@ -150,37 +150,35 @@ export async function callDeleteCategory(id) {
 }
 
 
-// JSON simulado para los usuarios
 import usersData from '../assets/users.json';
 
+// Crear un objeto que permita la mutabilidad
+let usersDatabase = JSON.parse(JSON.stringify(usersData));
+
 export async function callGetUsers() {
-    return usersData;
+    return usersDatabase;
 }
 
 export async function callGetUserById(id) {
-    return usersData.find(user => user.id === id);
+    const user = usersDatabase.find(user => user.id === parseInt(id)); // Convertir a número
+    if (user) {
+        return user;
+    } else {
+        throw new Error("Usuario no encontrado");
+    }
 }
 
 export async function callPutUser(updatedUser) {
-    const index = usersData.findIndex(user => user.id === updatedUser.id);
+    const index = usersDatabase.findIndex(user => user.id === parseInt(updatedUser.id)); // Asegúrate de que el ID sea un número
     if (index !== -1) {
-        usersData[index] = { ...usersData[index], ...updatedUser };
-        return usersData[index];
+        usersDatabase[index] = { ...usersDatabase[index], ...updatedUser }; // Actualiza el usuario
+        return usersDatabase[index]; // Devuelve el usuario actualizado
     } else {
         throw new Error("Usuario no encontrado");
     }
 }
 
-// Eliminar un usuario
-export async function callDeleteUser(id) {
-    const index = usersData.findIndex(user => user.id === id);
-    if (index !== -1) {
-        const deletedUser = usersData.splice(index, 1);
-        return deletedUser[0];
-    } else {
-        throw new Error("Usuario no encontrado");
-    }
-}
+
 
 
 
