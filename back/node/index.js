@@ -4,6 +4,7 @@ const app = express();
 const mysql = require('mysql2/promise');
 const multer = require('multer');
 const path = require('path');
+const bcrypt = require('bcrypt');
 
 app.use(express.json());
 app.use(cors());
@@ -12,12 +13,11 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const config = {
     host: 'localhost',
-    user: 'a20erigomvil_grillgrab',
-    password: 'GrillGrab123!',
+    user: 'root',
+    password: '',
     database: 'a20erigomvil_grillgrab',
     port: 3306 
 };
-
 
 // Configuración de multer para almacenar las imágenes en una carpeta del servidor
 const storage = multer.diskStorage({
@@ -364,6 +364,155 @@ app.delete('/delCat/:id', async (req, res) => {
     
     });
 
+    //USUARIS
+    app.get('/getUsers', async (req, res) => {
+        console.log('getUsers')
+    
+        try {
+            connection = await mysql.createConnection(config);
+    
+            const [rows, fields] = await connection.execute('SELECT * FROM usuaris');
+    
+            const users = rows;
+    
+            res.json(users);
+        } catch (err) {
+            console.error('Error MySQL', err)
+            res.status(500).send('Error data')
+        } finally {
+            if (connection) {
+                await connection.end()
+            }
+        }
+    });
+        
+    app.put('/editUserAdmin/:id', async (req, res) => {
+        const id = req.params.id;
+        const { admin } = req.body; 
+    
+        if (admin !== undefined && (admin === 0 || admin === 1)) {
+            try {
+                const connection = await mysql.createConnection(config);
+    
+                const updateQuery = `
+                    UPDATE usuaris 
+                    SET admin = ? 
+                    WHERE id = ?
+                `;
+    
+                await connection.execute(updateQuery, [admin, id]);
+    
+                const [rows] = await connection.execute('SELECT * FROM usuaris');
+                res.json(rows);
+    
+                await connection.end();
+            } catch (err) {
+                console.error('Error MySQL', err);
+                res.status(500).send('Error al actualizar el campo admin del usuario');
+            }
+        } else {
+            res.status(400).send('Valor de admin inválido; debe ser 0 o 1');
+        }
+    });
+    
+    app.delete('/deleteUser/:id', async (req, res) => {
+        const id = req.params.id;
+    
+        try {
+            const connection = await mysql.createConnection(config);
+    
+            await connection.execute('DELETE FROM usuaris WHERE id = ?', [id]);
+    
+            const [rows] = await connection.execute('SELECT * FROM usuaris');
+            res.json(rows);
+    
+            await connection.end();
+        } catch (err) {
+            console.error('Error MySQL', err);
+            res.status(500).send('Error al eliminar el usuario');
+        }
+    });
+    
+    app.post('/addUser', async (req, res) => {
+        console.log("addUser");
+        const user = req.body;
+    
+        if (user.nom && user.correu && user.contrasenya && user.halal !== undefined && user.vegan !== undefined && user.gluten !== undefined && user.lactosa !== undefined && user.crustacis !== undefined) {
+            try {
+                const connection = await mysql.createConnection(config);
+
+                const hashedPassword = await bcrypt.hash(user.contrasenya, 10);
+
+                const insertQuery = `
+                    INSERT INTO usuaris (nom, correu, contrasenya, halal, vegan, gluten, lactosa, crustacis)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                `;
+    
+                await connection.execute(insertQuery, [
+                    user.nom,
+                    user.correu,
+                    hashedPassword, 
+                    user.halal,
+                    user.vegan,
+                    user.gluten,
+                    user.lactosa,
+                    user.crustacis
+                ]);
+    
+                const [rows] = await connection.execute('SELECT * FROM usuaris');
+                res.json(rows);
+    
+                await connection.end();
+    
+            } catch (err) {
+                console.error('Error MySQL', err);
+                res.status(500).send('Error adding user');
+            }
+        } else {
+            res.status(400).json("Los campos no pueden estar vacíos");
+        }
+    });
+    
+    app.post('/login', async (req, res) => {
+        console.log("login");
+        const { correu, contrasenya } = req.body;
+        console.log(correu);
+        console.log(contrasenya)
+        if (correu && contrasenya) {
+            try {
+                const connection = await mysql.createConnection(config);
+                
+                const [rows] = await connection.execute(
+                    'SELECT id, correu, contrasenya FROM usuaris WHERE correu = ?',
+                    [correu]
+                );
+    
+                await connection.end();
+    
+                if (rows.length > 0) {
+
+                    const validPassword = await bcrypt.compare(contrasenya, rows[0].contrasenya);
+                    
+                    if (validPassword) {
+                        res.json({
+                            success: true,
+                            message: "Login exitoso",
+                            user: rows[0].id
+                        });
+                    } else {
+                        res.status(401).json({ success: false, message: "Correu o contrassenya incorrectes" });
+                    }
+                }
+            } catch (err) {
+                console.error('Error MySQL', err);
+                res.status(500).send('Error en el login');
+            }
+        } else {
+            res.status(400).json("Correo i contrassenya obligatoris");
+        }
+    });
+    
+    //COMANDES
     app.get('/getComan', async (req, res) => {
         console.log('getComan')
     
@@ -416,6 +565,7 @@ app.delete('/delCat/:id', async (req, res) => {
         res.json("Na puede estar vacio");
         }
     });
+
 
     app.put('/modComan/:id', async (req, res) => {
         const id = req.params.id;
