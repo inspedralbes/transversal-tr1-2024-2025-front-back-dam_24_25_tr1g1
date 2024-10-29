@@ -4,6 +4,7 @@ const app = express();
 const mysql = require('mysql2/promise');
 const multer = require('multer');
 const path = require('path');
+const bcrypt = require('bcrypt');
 
 app.use(express.json());
 app.use(cors());
@@ -12,8 +13,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const config = {
     host: 'localhost',
-    user: 'a20erigomvil_grillgrab',
-    password: 'GrillGrab123!',
+    user: 'root',
+    password: '',
     database: 'a20erigomvil_grillgrab',
     port: 3306 
 };
@@ -476,11 +477,12 @@ app.delete('/delCat/:id', async (req, res) => {
     app.post('/login', async (req, res) => {
         console.log("login");
         const { correu, contrasenya } = req.body;
-    
+        console.log(correu);
+        console.log(contrasenya)
         if (correu && contrasenya) {
             try {
                 const connection = await mysql.createConnection(config);
-    
+                
                 const [rows] = await connection.execute(
                     'SELECT id, correu, contrasenya FROM usuaris WHERE correu = ?',
                     [correu]
@@ -496,7 +498,7 @@ app.delete('/delCat/:id', async (req, res) => {
                         res.json({
                             success: true,
                             message: "Login exitoso",
-                            user: user.id
+                            user: rows[0].id
                         });
                     } else {
                         res.status(401).json({ success: false, message: "Correu o contrassenya incorrectes" });
