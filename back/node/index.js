@@ -436,7 +436,7 @@ app.delete('/delCat/:id', async (req, res) => {
     app.post('/addUser', async (req, res) => {
         console.log("addUser");
         const user = req.body;
-    
+
         if (user.nom && user.correu && user.contrasenya && user.halal !== undefined && user.vegan !== undefined && user.gluten !== undefined && user.lactosa !== undefined && user.crustacis !== undefined) {
             try {
                 const connection = await mysql.createConnection(config);
@@ -459,7 +459,7 @@ app.delete('/delCat/:id', async (req, res) => {
                     user.crustacis
                 ]);
     
-                const [rows] = await connection.execute('SELECT * FROM usuaris');
+                const [rows] = await connection.execute('SELECT * FROM usuaris WHERE correu = ?', [user.correu]);
                 res.json(rows);
     
                 await connection.end();
