@@ -473,6 +473,43 @@ app.delete('/delCat/:id', async (req, res) => {
         }
     });
     
+    app.post('/login', async (req, res) => {
+        console.log("login");
+        const { correu, contrasenya } = req.body;
+    
+        if (correu && contrasenya) {
+            try {
+                const connection = await mysql.createConnection(config);
+    
+                const [rows] = await connection.execute(
+                    'SELECT id, correu, contrasenya FROM usuaris WHERE correu = ?',
+                    [correu]
+                );
+    
+                await connection.end();
+    
+                if (rows.length > 0) {
+
+                    const validPassword = await bcrypt.compare(contrasenya, rows[0].contrasenya);
+                    
+                    if (validPassword) {
+                        res.json({
+                            success: true,
+                            message: "Login exitoso",
+                            user: user.id
+                        });
+                    } else {
+                        res.status(401).json({ success: false, message: "Correu o contrassenya incorrectes" });
+                    }
+                }
+            } catch (err) {
+                console.error('Error MySQL', err);
+                res.status(500).send('Error en el login');
+            }
+        } else {
+            res.status(400).json("Correo i contrassenya obligatoris");
+        }
+    });
     
     //COMANDES
     app.get('/getComan', async (req, res) => {
