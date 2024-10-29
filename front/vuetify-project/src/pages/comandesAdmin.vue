@@ -44,22 +44,31 @@ onMounted(async () => {
 // Función para cambiar el estado de la comanda
 const toggleEstat = async (comanda) => {
     if (!isFinalEstat(comanda.estat)) {
-        const nextState = getNextEstat(comanda.estat); 
-        comanda.estat = nextState; 
-        await callUpdateComandaStatus(comanda.id, nextState); 
+        const nextState = getNextEstat(comanda.estat);
+        
+        try {
+            await callUpdateComandaStatus(comanda.id, nextState);
+            comanda.estat = nextState; // Actualizamos localmente
+        } catch (error) {
+            console.error("Error al actualizar el estado en la base de datos:", error);
+        }
     }
 };
 
+
 // Función auxiliar para obtener el próximo estado
+// comandesAdmin.vue
 const getNextEstat = (currentEstat) => {
     const currentIndex = estatOptions.value.indexOf(currentEstat);
+    if (currentIndex === -1) return currentEstat; // Si no se encuentra, retornar el actual
     return estatOptions.value[(currentIndex + 1) % estatOptions.value.length];
 };
 
-// Función auxiliar para verificar si el estado es el final
 const isFinalEstat = (estat) => {
-    return estat === "Recollit"; // Cambia esto al último estado de tu ENUM
+    // Comprobamos si es el último valor en el array de ENUM
+    return estat === estatOptions.value[estatOptions.value.length - 1];
 };
+
 </script>
 
 <style scoped>

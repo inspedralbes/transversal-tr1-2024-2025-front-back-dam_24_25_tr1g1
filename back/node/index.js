@@ -582,36 +582,29 @@ app.delete('/delCat/:id', async (req, res) => {
 
     app.put('/modComan/:id', async (req, res) => {
         const id = req.params.id;
-        console.log("modifComan")
-        const prod = req.body
+        const { estat } = req.body;
     
-        if (prod.contingut != null && prod.contingut != "" && prod.estat != null && prod.estat != "" && prod.client != null && prod.client != "") {
-        
+        // Verificar que el nuevo estado esté en los valores válidos de ENUM
+        const connection = await mysql.createConnection(config);
+        const [enumValues] = await connection.execute(`SHOW COLUMNS FROM comandes LIKE 'estat'`);
+        const validValues = enumValues[0].Type.match(/enum\((.*)\)/)[1].split(',').map(val => val.replace(/'/g, ''));
+    
+        if (!validValues.includes(estat)) {
+            return res.status(400).json({ error: "Estado no válido" });
+        }
+    
         try {
-            const connection = await mysql.createConnection(config);
-    
-            const insertQuery = `
-                UPDATE comandes SET  estat = ?  WHERE id = ?
-            `;
-    
-            await connection.execute(insertQuery, [    
-                prod.estat,
-                id
-            ]);
-    
-            const [rows] = await connection.execute('SELECT * FROM comandes');
-    
-            res.json(rows);
-    
-        } catch (err) {
-            console.error('Error MySQL', err)
-            res.status(500).send('Error data')
-        }
-        }
-         else {
-        res.json("Na puede estar vacio");
+            const updateQuery = `UPDATE comandes SET estat = ? WHERE id = ?`;
+            await connection.execute(updateQuery, [estat, id]);
+            const [updatedRow] = await connection.execute(`SELECT * FROM comandes WHERE id = ?`, [id]);
+            connection.end();
+            res.json(updatedRow[0]);
+        } catch (error) {
+            console.error('Error al actualizar el estado:', error);
+            res.status(500).json({ error: 'Error al actualizar el estado de la comanda' });
         }
     });
+    
 
 app.listen(26968, () => {
     console.log('localhost:26968')
