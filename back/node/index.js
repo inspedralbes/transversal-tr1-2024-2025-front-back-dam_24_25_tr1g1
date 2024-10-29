@@ -440,7 +440,9 @@ app.delete('/delCat/:id', async (req, res) => {
         if (user.nom && user.correu && user.contrasenya && user.halal !== undefined && user.vegan !== undefined && user.gluten !== undefined && user.lactosa !== undefined && user.crustacis !== undefined) {
             try {
                 const connection = await mysql.createConnection(config);
-    
+
+                const hashedPassword = await bcrypt.hash(user.contrasenya, 10);
+
                 const insertQuery = `
                     INSERT INTO usuaris (nom, correu, contrasenya, halal, vegan, gluten, lactosa, crustacis)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -449,7 +451,7 @@ app.delete('/delCat/:id', async (req, res) => {
                 await connection.execute(insertQuery, [
                     user.nom,
                     user.correu,
-                    user.contrasenya,
+                    hashedPassword, 
                     user.halal,
                     user.vegan,
                     user.gluten,
@@ -471,7 +473,7 @@ app.delete('/delCat/:id', async (req, res) => {
         }
     });
     
-
+    
     //COMANDES
     app.get('/getComan', async (req, res) => {
         console.log('getComan')
