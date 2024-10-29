@@ -150,6 +150,7 @@ export async function callDeleteCategory(id) {
 }
 
 
+//USUARIS
 
 export async function callGetUsers() {
     const response = await fetch(`${import.meta.env.VITE_API_BACK}/getUsers`, {
@@ -202,19 +203,20 @@ export async function callDeleteUser(id) {
 }
 
 
-// JSON de ejemplo para simular una base de datos
-let comandesDatabase = [
-    { id: 1, data: "2024-11-07", contingut: "dsadadas", estat: "En cuina", client: 1 },
-    { id: 2, data: "2024-10-08", contingut: "ddsadasdassadadas", estat: "Preparant", client: 1 },
-    { id: 3, data: "2024-10-15", contingut: "comanda de prova", estat: "Lliurat", client: 2 }
-];
-
-// Función para obtener la lista de comandas
+//COMANDES
 export async function callGetComandes() {
-    return comandesDatabase;
+    const response = await fetch(`${import.meta.env.VITE_API_BACK}/getComan`, {
+
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    const comandes = await response.json();
+    return comandes;
 }
 
-// Función para actualizar el estado de una comanda
 export async function callUpdateComandaStatus(id, newStatus) {
     const comanda = comandesDatabase.find(c => c.id === id);
     if (comanda) {
