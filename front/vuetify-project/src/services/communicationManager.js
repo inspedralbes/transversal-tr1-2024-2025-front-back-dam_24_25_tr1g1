@@ -186,6 +186,30 @@ export async function callDeleteUser(id) {
     }
 }
 
+// JSON de ejemplo para simular una base de datos
+let comandesDatabase = [
+    { id: 1, data: "2024-11-07", contingut: "dsadadas", estat: "En cuina", client: 1 },
+    { id: 2, data: "2024-10-08", contingut: "ddsadasdassadadas", estat: "Preparant", client: 1 },
+    { id: 3, data: "2024-10-15", contingut: "comanda de prova", estat: "Lliurat", client: 2 }
+];
+
+// Función para obtener la lista de comandas
+export async function callGetComandes() {
+    return comandesDatabase;
+}
+
+// Función para actualizar el estado de una comanda
+export async function callUpdateComandaStatus(id, newStatus) {
+    const comanda = comandesDatabase.find(c => c.id === id);
+    if (comanda) {
+        comanda.estat = newStatus;
+        return comanda;
+    } else {
+        throw new Error("Comanda no encontrada");
+    }
+}
+
+
 
 
 
