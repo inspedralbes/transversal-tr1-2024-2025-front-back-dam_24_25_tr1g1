@@ -542,17 +542,18 @@ app.delete('/delCat/:id', async (req, res) => {
             const connection = await mysql.createConnection(config);
     
             const insertQuery = `
-                INSERT INTO comandes (contingut, estat, client)
+                INSERT INTO comandes (data,contingut, estat, client)
                 VALUES (?, ?, ?)
             `;
     
             await connection.execute(insertQuery, [
+                prod.data,
                 prod.contingut,
                 prod.estat,
                 prod.client
             ]);
     
-            const [rows] = await connection.execute('SELECT * FROM comandes');
+            const [rows] = await connection.execute('SELECT id FROM comandes WHERE id = ?', [prod.id]);
     
             res.json(rows);
     
