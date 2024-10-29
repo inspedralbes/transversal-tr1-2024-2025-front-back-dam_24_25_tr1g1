@@ -150,41 +150,55 @@ export async function callDeleteCategory(id) {
 }
 
 
-import usersData from '../assets/users.json';
-
-// Crear un objeto que permita la mutabilidad
-let usersDatabase = JSON.parse(JSON.stringify(usersData));
 
 export async function callGetUsers() {
-    return usersDatabase;
+    const response = await fetch(`${import.meta.env.VITE_API_BACK}/getUsers`, {
+
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    const users = await response.json();
+    return users;
 }
 
-export async function callGetUserById(id) {
-    const user = usersDatabase.find(user => user.id === parseInt(id)); // Convertir a número
-    if (user) {
-        return user;
-    } else {
-        throw new Error("Usuario no encontrado");
-    }
+//export async function callGetUserById(id) {
+  //  const user = usersDatabase.find(user => user.id === parseInt(id)); // Convertir a número
+    //if (user) {
+      //  return user;
+    //} else {
+      //  throw new Error("Usuario no encontrado");
+    //}
+//}
+
+export async function callPutUser(usuaris) {
+    const response = await fetch(`${import.meta.env.VITE_API_BACK}/editUserAdmin/${usuaris.id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updatedUser)
+    });
+
+    const updatedUser = await response.json();
+    return updatedUser;
 }
 
-export async function callPutUser(updatedUser) {
-    const index = usersDatabase.findIndex(user => user.id === parseInt(updatedUser.id)); // Asegúrate de que el ID sea un número
-    if (index !== -1) {
-        usersDatabase[index] = { ...usersDatabase[index], ...updatedUser }; // Actualiza el usuario
-        return usersDatabase[index]; // Devuelve el usuario actualizado
-    } else {
-        throw new Error("Usuario no encontrado");
-    }
-}
+
 export async function callDeleteUser(id) {
-    const index = usersDatabase.findIndex(user => user.id === id);
-    if (index !== -1) {
-        usersDatabase.splice(index, 1); // Elimina el usuario
-    } else {
-        throw new Error("Usuario no encontrado");
-    }
+    const response = await fetch(`${import.meta.env.VITE_API_BACK}/deleteUser/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    const deleteUser = await response.json();
+    return deleteUser;
 }
+
 
 // JSON de ejemplo para simular una base de datos
 let comandesDatabase = [
