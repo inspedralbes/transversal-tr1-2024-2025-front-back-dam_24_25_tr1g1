@@ -179,7 +179,9 @@ export async function callPutUser(usuaris) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(updatedUser)
+        body: JSON.stringify({
+            admin: usuaris.admin 
+        })
     });
 
     const updatedUser = await response.json();

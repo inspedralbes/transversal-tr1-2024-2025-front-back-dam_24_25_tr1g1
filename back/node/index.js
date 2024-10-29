@@ -13,7 +13,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const config = {
     host: 'localhost',
-    user: 'root',
+    user: 'a20erigomvil_grillgrab',
     password: '',
     database: 'a20erigomvil_grillgrab',
     port: 3306 
