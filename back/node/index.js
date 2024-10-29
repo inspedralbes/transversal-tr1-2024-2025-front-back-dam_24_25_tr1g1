@@ -13,12 +13,11 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const config = {
     host: 'localhost',
-    user: 'root',
-    password: '',
+    user: 'a20erigomvil_grillgrab',
+    password: 'GrillGrab123!',
     database: 'a20erigomvil_grillgrab',
     port: 3306 
 };
-
 
 // Configuración de multer para almacenar las imágenes en una carpeta del servidor
 const storage = multer.diskStorage({
