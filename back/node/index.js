@@ -386,7 +386,36 @@ app.delete('/delCat/:id', async (req, res) => {
         }
     });
         
-
+    app.put('/editUserAdmin/:id', async (req, res) => {
+        const id = req.params.id;
+        const { admin } = req.body; 
+    
+        if (admin !== undefined && (admin === 0 || admin === 1)) {
+            try {
+                const connection = await mysql.createConnection(config);
+    
+                const updateQuery = `
+                    UPDATE usuaris 
+                    SET admin = ? 
+                    WHERE id = ?
+                `;
+    
+                await connection.execute(updateQuery, [admin, id]);
+    
+                const [rows] = await connection.execute('SELECT * FROM usuaris');
+                res.json(rows);
+    
+                await connection.end();
+            } catch (err) {
+                console.error('Error MySQL', err);
+                res.status(500).send('Error al actualizar el campo admin del usuario');
+            }
+        } else {
+            res.status(400).send('Valor de admin inválido; debe ser 0 o 1');
+        }
+    });
+    
+ 
     //COMANDES
     app.get('/getComan', async (req, res) => {
         console.log('getComan')
@@ -440,6 +469,7 @@ app.delete('/delCat/:id', async (req, res) => {
         res.json("Na puede estar vacio");
         }
     });
+
 
     app.put('/modComan/:id', async (req, res) => {
         const id = req.params.id;
