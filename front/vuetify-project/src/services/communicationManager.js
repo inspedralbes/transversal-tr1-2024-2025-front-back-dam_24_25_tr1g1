@@ -217,13 +217,36 @@ export async function callGetComandes() {
     return comandes;
 }
 
+
 export async function callUpdateComandaStatus(id, newStatus) {
-    const comanda = comandesDatabase.find(c => c.id === id);
-    if (comanda) {
-        comanda.estat = newStatus;
-        return comanda;
-    } else {
-        throw new Error("Comanda no encontrada");
+    console.log(newStatus)
+    const response = await fetch(`${import.meta.env.VITE_API_BACK}/modComan/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ estat: newStatus }), // Envío del nuevo estado
+    });
+
+    if (!response.ok) {
+        throw new Error("No se pudo actualizar el estado de la comanda");
+    }
+
+    return await response.json(); // Devolver la respuesta actualizada
+}
+// Función para obtener los estados de la base de datos
+// communicationManager.js
+export async function callGetEstats() {
+    try {
+        const response = await fetch(`${import.meta.env.VITE_API_BACK}/estatsComanda`);
+        if (!response.ok) {
+            throw new Error("No se pudieron obtener los estados");
+        }
+        const estatOptions = await response.json();
+        return estatOptions;
+    } catch (error) {
+        console.error("Error al obtener los estados:", error);
+        throw error;
     }
 }
 

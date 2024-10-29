@@ -13,7 +13,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const config = {
     host: 'localhost',
-    user: 'a20erigomvil_grillgrab',
+    user: 'root',
     password: '',
     database: 'a20erigomvil_grillgrab',
     port: 3306 
@@ -388,23 +388,19 @@ app.delete('/delCat/:id', async (req, res) => {
         
     app.put('/editUserAdmin/:id', async (req, res) => {
         const id = req.params.id;
-        const { admin } = req.body; 
+        const { admin } = req.body;
     
         if (admin !== undefined && (admin === 0 || admin === 1)) {
             try {
                 const connection = await mysql.createConnection(config);
-    
                 const updateQuery = `
                     UPDATE usuaris 
                     SET admin = ? 
                     WHERE id = ?
                 `;
-    
                 await connection.execute(updateQuery, [admin, id]);
-    
-                const [rows] = await connection.execute('SELECT * FROM usuaris');
+                const [rows] = await connection.execute('SELECT * FROM usuaris WHERE id = ?', [id]); // Asegúrate de consultar solo el usuario actualizado
                 res.json(rows);
-    
                 await connection.end();
             } catch (err) {
                 console.error('Error MySQL', err);
@@ -414,6 +410,7 @@ app.delete('/delCat/:id', async (req, res) => {
             res.status(400).send('Valor de admin inválido; debe ser 0 o 1');
         }
     });
+    
     
     app.delete('/deleteUser/:id', async (req, res) => {
         const id = req.params.id;
@@ -436,7 +433,7 @@ app.delete('/delCat/:id', async (req, res) => {
     app.post('/addUser', async (req, res) => {
         console.log("addUser");
         const user = req.body;
-
+    
         if (user.nom && user.correu && user.contrasenya && user.halal !== undefined && user.vegan !== undefined && user.gluten !== undefined && user.lactosa !== undefined && user.crustacis !== undefined) {
             try {
                 const connection = await mysql.createConnection(config);
@@ -459,7 +456,7 @@ app.delete('/delCat/:id', async (req, res) => {
                     user.crustacis
                 ]);
     
-                const [rows] = await connection.execute('SELECT * FROM usuaris WHERE correu = ?', [user.correu]);
+                const [rows] = await connection.execute('SELECT * FROM usuaris');
                 res.json(rows);
     
                 await connection.end();
@@ -566,6 +563,21 @@ app.delete('/delCat/:id', async (req, res) => {
         }
     });
 
+    // Endpoint para obtener los estados de la comanda
+    app.get('/estatsComanda', async (req, res) => {
+        const connection = await mysql.createConnection(config);
+        const [rows] = await connection.execute(`SHOW COLUMNS FROM comandes LIKE 'estat'`);
+        const enumColumn = rows[0].Type;
+
+        const enumValues = enumColumn.match(/enum\((.*)\)/)[1] // Get the inner content between parentheses
+        .split(',') // Split by comma
+        .map(value => value.replace(/'/g, '')); // Remove single quotes around each value
+
+    console.log(enumValues);
+
+        res.json(enumValues);
+    });
+
 
     app.put('/modComan/:id', async (req, res) => {
         const id = req.params.id;
@@ -578,14 +590,11 @@ app.delete('/delCat/:id', async (req, res) => {
             const connection = await mysql.createConnection(config);
     
             const insertQuery = `
-                UPDATE comandes SET data = ?, contingut = ?, estat = ?, client = ?  WHERE id = ?
+                UPDATE comandes SET  estat = ?  WHERE id = ?
             `;
     
-            await connection.execute(insertQuery, [
-                prod.data,
-                prod.contingut,
+            await connection.execute(insertQuery, [    
                 prod.estat,
-                prod.client,
                 id
             ]);
     

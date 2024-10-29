@@ -24,7 +24,7 @@
                             <v-btn icon :to="'/editCategory/'+category.id">
                                 <v-icon>mdi-pencil</v-icon>
                             </v-btn>
-                            <v-btn icon @click="deleteCategory(category.id)">
+                            <v-btn icon @click="confirmDeleteCategory(category.id)">
                                 <v-icon>mdi-delete</v-icon>
                             </v-btn>
                         </v-list-item-action>
@@ -46,20 +46,23 @@ onMounted(async () => {
     categories.value = await callGetCategories();
 });
 
-const addCategory = async() => {
+const addCategory = async () => {
     await callPostCategory(newCategory.value);
-    categories.value=await callGetCategories()
-    newCategory.value="";
+    categories.value = await callGetCategories();
+    newCategory.value = "";
 };
 
-const deleteCategory = async (id) => {
-    let response=await callDeleteCategory(id)
-    if(response=="no puedes"){
-        alert("No pots eliminar una categoria amb productes associats")
+// Función para confirmar la eliminación de una categoría
+const confirmDeleteCategory = async (id) => {
+    const confirmed = confirm("¿Estás seguro de que deseas eliminar esta categoría?");
+    if (confirmed) {
+        let response = await callDeleteCategory(id);
+        if (response === "no puedes") {
+            alert("No puedes eliminar una categoría con productos asociados.");
+        }
+        categories.value = await callGetCategories(); // Actualiza la lista después de la eliminación
     }
-    categories.vaule=await callGetCategories()
 };
-
 
 </script>
 

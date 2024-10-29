@@ -30,13 +30,15 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { callGetComandes, callUpdateComandaStatus } from '../services/communicationManager.js';
+import { callGetComandes, callUpdateComandaStatus, callGetEstats } from '../services/communicationManager.js';
 
 const comandes = ref([]);
+const estatOptions = ref([]);
 
-// Cargar comandas al montar el componente
+// Cargar comandas y estados al montar el componente
 onMounted(async () => {
     comandes.value = await callGetComandes();
+    estatOptions.value = await callGetEstats(); // Obtener los estados de la base de datos
 });
 
 // Función para cambiar el estado de la comanda
@@ -50,17 +52,15 @@ const toggleEstat = async (comanda) => {
 
 // Función auxiliar para obtener el próximo estado
 const getNextEstat = (currentEstat) => {
-    const estatSequence = ["En cuina", "Preparant", "Preparat per recollir", "Lliurat"];
-    const currentIndex = estatSequence.indexOf(currentEstat);
-    return estatSequence[(currentIndex + 1) % estatSequence.length];
+    const currentIndex = estatOptions.value.indexOf(currentEstat);
+    return estatOptions.value[(currentIndex + 1) % estatOptions.value.length];
 };
 
 // Función auxiliar para verificar si el estado es el final
 const isFinalEstat = (estat) => {
-    return estat === "Lliurat";
+    return estat === "Recollit"; // Cambia esto al último estado de tu ENUM
 };
 </script>
-
 
 <style scoped>
 li {
