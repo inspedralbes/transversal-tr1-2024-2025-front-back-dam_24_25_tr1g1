@@ -1,6 +1,6 @@
 <template>
     <v-container>
-        <h1>Usuarios</h1>
+        <h1>Usuaris</h1>
         <v-list>
             <v-list-item v-for="user in users" :key="user.id">
                 <v-row align="center" justify="space-between" class="w-100">
@@ -12,11 +12,12 @@
                     </v-col>
                     <v-col class="d-flex justify-end">
                         <v-list-item-action>
-                            <!-- Botón para editar el usuario -->
-                            <v-btn icon :to="'/editUser/' + user.id">
-                                <v-icon>mdi-pencil</v-icon>
-                            </v-btn>
-                            <!-- Botón para eliminar el usuario -->
+                            <v-checkbox
+                                v-model="user.adminBoolean"
+                                label="Admin"
+                                @change="toggleAdmin(user)"
+                            ></v-checkbox>
+
                             <v-btn icon @click="confirmDeleteUser(user.id)">
                                 <v-icon>mdi-delete</v-icon>
                             </v-btn>
@@ -30,13 +31,17 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { callGetUsers, callDeleteUser } from '../services/communicationManager.js';
+import { callGetUsers, callDeleteUser, callPutUser } from '../services/communicationManager.js';
 
 let users = ref([]);
 
-// Cargar usuarios al montar el componente
+// Cargar usuarios al montar el componente y convertir admin a booleano
 onMounted(async () => {
-    users.value = await callGetUsers();
+    const fetchedUsers = await callGetUsers();
+    users.value = fetchedUsers.map(user => ({
+        ...user,
+        adminBoolean: Boolean(user.admin) 
+    }));
 });
 
 // Función para confirmar y eliminar un usuario
@@ -45,11 +50,20 @@ const confirmDeleteUser = async (id) => {
     if (confirmed) {
         try {
             await callDeleteUser(id);
-            // Actualizar la lista de usuarios después de la eliminación
             users.value = await callGetUsers();
         } catch (error) {
             alert("No se puede eliminar el usuario.");
         }
+    }
+};
+
+// Función para actualizar el estado de admin del usuario
+const toggleAdmin = async (user) => {
+    user.admin = user.adminBoolean ? 1 : 0; 
+    try {
+        await callPutUser(user); 
+    } catch (error) {
+        alert("No se pudo actualizar el estado de admin del usuario.");
     }
 };
 </script>
