@@ -56,6 +56,7 @@ const toggleEstat = async (comanda) => {
 };
 
 
+
 // Función auxiliar para obtener el próximo estado
 // comandesAdmin.vue
 const getNextEstat = (currentEstat) => {
@@ -68,6 +69,7 @@ const isFinalEstat = (estat) => {
     // Comprobamos si es el último valor en el array de ENUM
     return estat === estatOptions.value[estatOptions.value.length - 1];
 };
+
 
 </script>
 

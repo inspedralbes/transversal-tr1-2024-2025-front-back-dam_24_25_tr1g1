@@ -13,8 +13,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const config = {
     host: 'localhost',
-    user: 'a20erigomvil_grillgrab',
-    password: 'GrillGrab123!',
+    user: 'root',
+    password: '',
     database: 'a20erigomvil_grillgrab',
     port: 3306 
 };
@@ -565,42 +565,56 @@ app.post('/addComan', async (req, res) => {
         }
     });
 
+    app.get('/estatsComanda', async (req, res) => {
+        try {
+            const connection = await mysql.createConnection(config);
+            
+            // Ejecuta la consulta para obtener la columna 'estat' de la tabla 'comandes'
+            const [rows] = await connection.execute(`SHOW COLUMNS FROM comandes LIKE 'estat'`);
+            const enumColumn = rows[0].Type;
+    
+            // Extrae los valores del ENUM usando una expresión regular
+            const enumValues = enumColumn.match(/enum\((.*)\)/)[1]
+                .split(',') // Divide los valores por coma
+                .map(value => value.replace(/'/g, '')); // Elimina las comillas simples
+    
+            connection.end(); // Cierra la conexión
+    
+            // Devuelve los valores del ENUM como respuesta
+            res.json(enumValues);
+        } catch (error) {
+            console.error('Error al obtener los estados:', error);
+            res.status(500).json({ error: 'Error al obtener los estados' }); // Respuesta de error en caso de fallo
+        }
+    });
+
 
     app.put('/modComan/:id', async (req, res) => {
         const id = req.params.id;
-        console.log("modifComan")
-        const prod = req.body
+        const { estat } = req.body;
     
-        if (prod.contingut != null && prod.contingut != "" && prod.estat != null && prod.estat != "" && prod.client != null && prod.client != "") {
-        
+        // Verificar que el nuevo estado esté en los valores válidos de ENUM
+        const connection = await mysql.createConnection(config);
+        const [enumValues] = await connection.execute(`SHOW COLUMNS FROM comandes LIKE 'estat'`);
+        const validValues = enumValues[0].Type.match(/enum\((.*)\)/)[1].split(',').map(val => val.replace(/'/g, ''));
+    
+        if (!validValues.includes(estat)) {
+            return res.status(400).json({ error: "Estado no válido" });
+        }
+    
         try {
-            const connection = await mysql.createConnection(config);
-    
-            const insertQuery = `
-                UPDATE comandes SET data = ?, contingut = ?, estat = ?, client = ?  WHERE id = ?
-            `;
-    
-            await connection.execute(insertQuery, [
-                prod.data,
-                prod.contingut,
-                prod.estat,
-                prod.client,
-                id
-            ]);
-    
-            const [rows] = await connection.execute('SELECT * FROM comandes');
-    
-            res.json(rows);
-    
-        } catch (err) {
-            console.error('Error MySQL', err)
-            res.status(500).send('Error data')
-        }
-        }
-         else {
-        res.json("Na puede estar vacio");
+            const updateQuery = `UPDATE comandes SET estat = ? WHERE id = ?`;
+            await connection.execute(updateQuery, [estat, id]);
+            const [updatedRow] = await connection.execute(`SELECT * FROM comandes WHERE id = ?`, [id]);
+            connection.end();
+            res.json(updatedRow[0]);
+        } catch (error) {
+            console.error('Error al actualizar el estado:', error);
+            res.status(500).json({ error: 'Error al actualizar el estado de la comanda' });
         }
     });
+    
+    
 
 app.listen(26968, () => {
     console.log('localhost:26968')
