@@ -165,14 +165,14 @@ export async function callGetUsers() {
     return users;
 }
 
-//export async function callGetUserById(id) {
-  //  const user = usersDatabase.find(user => user.id === parseInt(id));
-    //if (user) {
-      //  return user;
-    //} else {
-      //  throw new Error("Usuario no encontrado");
-    //}
-//}
+export async function callGetUserById(id) {
+   const user = usersDatabase.find(user => user.id === parseInt(id));
+    if (user) {
+       return user;
+    } else {
+       throw new Error("Usuario no encontrado");
+    }
+}
 
 export async function callPutUser(usuaris) {
     const response = await fetch(`${import.meta.env.VITE_API_BACK}/editUserAdmin/${usuaris.id}`, {
