@@ -166,7 +166,7 @@ export async function callGetUsers() {
 }
 
 //export async function callGetUserById(id) {
-  //  const user = usersDatabase.find(user => user.id === parseInt(id)); // Convertir a número
+  //  const user = usersDatabase.find(user => user.id === parseInt(id));
     //if (user) {
       //  return user;
     //} else {

@@ -132,74 +132,32 @@ app.put('/modProd/:id', upload.single('imatge'), async (req, res) => {
     const id = req.params.id;
     const prod = req.body;
 
-
-    if (prod.nom != null && prod.nom != "" && prod.descripcio != null && prod.descripcio != "" && prod.preu != null && prod.preu != ""&& prod.stock != null && prod.stock != "" && prod.category != null && prod.category != "") {
+    if (prod.nom && prod.descripcio && prod.preu && prod.stock && prod.category) {
         try {
-
             const connection = await mysql.createConnection(config);
+            const [resultats] = await connection.execute('SELECT * FROM productes WHERE id = ?', [id]);
+            const cosas = resultats[0];
 
-            const [MM] = await connection.execute('SELECT * FROM productes WHERE id = ?', [id]);
-            const cosas = MM[0];
-
-            console.log(cosas.id);
-
-            const fotoRuta = req.file.path;
-
-            let oferta = null;
-
-            if(prod.oferta == "null"){
-                oferta == null   
-            }
-            else{
-                oferta == prod.oferta
-            }
-            
-            if (prod.nom == null){
-                prod.nom = cosas.nom
+            if (!cosas) {
+                return res.status(404).send('No existe el producto');
             }
 
-            if (fotoRuta == null){
-                fotoRuta = cosas.fotoRuta
-            }
+            const fotoRuta = req.file ? req.file.path : cosas.fotoRuta;
 
-            if (prod.descripcio == null){
-                prod.descripcio = cosas.descripcio
-            }
+            prod.nom = prod.nom || cosas.nom;
+            prod.descripcio = prod.descripcio || cosas.descripcio;
+            prod.preu = prod.preu || cosas.preu;
+            prod.stock = prod.stock || cosas.stock;
+            prod.category = prod.category || cosas.category;
+            prod.halal = prod.halal !== undefined ? prod.halal : cosas.halal;
+            prod.vegan = prod.vegan !== undefined ? prod.vegan : cosas.vegan;
+            prod.gluten = prod.gluten !== undefined ? prod.gluten : cosas.gluten;
+            prod.lactosa = prod.lactosa !== undefined ? prod.lactosa : cosas.lactosa;
+            prod.crustacis = prod.crustacis !== undefined ? prod.crustacis : cosas.crustacis;
 
-            if (prod.preu == null){
-                prod.preu = cosas.preu
-            }
-
-            if (prod.stock == null){
-                prod.stock = cosas.stock
-            }
-
-            if (prod.category == null){
-                prod.category = cosas.category
-            }
-
-            if (prod.halal == null){
-                prod.halal = cosas.halal
-            }
-
-            if (prod.vegan == null){
-                prod.vegan = cosas.vegan
-            }
-
-            if (prod.gluten == null){
-                prod.gluten = cosas.gluten
-            }
-
-            if (prod.lactosa == null){
-                prod.lactosa = cosas.lactosa
-            }
-
-            if (prod.crustacis == null){
-                prod.crustacis = cosas.crustacis
-            }
+            let oferta = prod.oferta === "0" ? null : prod.oferta;
 
             const updateQuery = 'UPDATE productes SET nom = ?, descripcio = ?, fotoRuta = ?, preu = ?, oferta = ?, stock = ?, category = ?, halal = ?, vegan = ?, gluten = ?, lactosa = ?, crustacis = ? WHERE id = ?;';
-
             await connection.execute(updateQuery, [
                 prod.nom,
                 prod.descripcio,
@@ -218,7 +176,6 @@ app.put('/modProd/:id', upload.single('imatge'), async (req, res) => {
 
             const [rows] = await connection.execute('SELECT * FROM productes');
             res.json(rows);
-
             await connection.end();
 
         } catch (err) {
@@ -226,7 +183,7 @@ app.put('/modProd/:id', upload.single('imatge'), async (req, res) => {
             res.status(500).send('Error updating product');
         }
     } else {
-        res.json("Na puede estar vacio");
+        res.status(400).json("No puede estar vacío");
     }
 });
 
