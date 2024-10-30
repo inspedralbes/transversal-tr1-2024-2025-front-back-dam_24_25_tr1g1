@@ -13,8 +13,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const config = {
     host: 'localhost',
-    user: 'root',
-    password: '',
+    user: 'a20erigomvil_grillgrab',
+    password: 'GrillGrab123!',
     database: 'a20erigomvil_grillgrab',
     port: 3306 
 };
@@ -388,19 +388,23 @@ app.delete('/delCat/:id', async (req, res) => {
         
     app.put('/editUserAdmin/:id', async (req, res) => {
         const id = req.params.id;
-        const { admin } = req.body;
+        const { admin } = req.body; 
     
         if (admin !== undefined && (admin === 0 || admin === 1)) {
             try {
                 const connection = await mysql.createConnection(config);
+    
                 const updateQuery = `
                     UPDATE usuaris 
                     SET admin = ? 
                     WHERE id = ?
                 `;
+    
                 await connection.execute(updateQuery, [admin, id]);
-                const [rows] = await connection.execute('SELECT * FROM usuaris WHERE id = ?', [id]); // Asegúrate de consultar solo el usuario actualizado
+    
+                const [rows] = await connection.execute('SELECT * FROM usuaris');
                 res.json(rows);
+    
                 await connection.end();
             } catch (err) {
                 console.error('Error MySQL', err);
@@ -410,7 +414,6 @@ app.delete('/delCat/:id', async (req, res) => {
             res.status(400).send('Valor de admin inválido; debe ser 0 o 1');
         }
     });
-    
     
     app.delete('/deleteUser/:id', async (req, res) => {
         const id = req.params.id;
@@ -433,22 +436,21 @@ app.delete('/delCat/:id', async (req, res) => {
     app.post('/addUser', async (req, res) => {
         console.log("addUser");
         const user = req.body;
-    
+
         if (user.nom && user.correu && user.contrasenya && user.halal !== undefined && user.vegan !== undefined && user.gluten !== undefined && user.lactosa !== undefined && user.crustacis !== undefined) {
             try {
                 const connection = await mysql.createConnection(config);
-
-                const hashedPassword = await bcrypt.hash(user.contrasenya, 10);
+                console.log("CONTRASENYA", user.contrasenya)
 
                 const insertQuery = `
-                    INSERT INTO usuaris (nom, correu, contrasenya, halal, vegan, gluten, lactosa, crustacis)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO usuaris (nom, correu, contrasenya, halal, vegan, gluten, lactosa, crustacis, admin)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, false)
                 `;
     
                 await connection.execute(insertQuery, [
                     user.nom,
                     user.correu,
-                    hashedPassword, 
+                    user.contrasenya, 
                     user.halal,
                     user.vegan,
                     user.gluten,
@@ -456,7 +458,8 @@ app.delete('/delCat/:id', async (req, res) => {
                     user.crustacis
                 ]);
     
-                const [rows] = await connection.execute('SELECT * FROM usuaris');
+                const [rows] = await connection.execute('SELECT * FROM usuaris WHERE correu = ?', [user.correu]);
+                console.log("FINAL",rows[0].contrasenya)
                 res.json(rows);
     
                 await connection.end();
@@ -485,17 +488,16 @@ app.delete('/delCat/:id', async (req, res) => {
                 );
     
                 await connection.end();
-    
+    		console.log([rows])
                 if (rows.length > 0) {
-
-                    const validPassword = await bcrypt.compare(contrasenya, rows[0].contrasenya);
+			console.log("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEO", contrasenya, rows[0].contrasenya)
                     
-                    if (validPassword) {
-                        res.json({
-                            success: true,
-                            message: "Login exitoso",
-                            user: rows[0].id
-                        });
+			console.log("QUE DISE", contrasenya, "Poh digo", rows[0].contrasenya)
+                    if (contrasenya==rows[0].contrasenya) {
+			
+                        res.json(
+                            rows
+                        );
                     } else {
                         res.status(401).json({ success: false, message: "Correu o contrassenya incorrectes" });
                     }
@@ -531,26 +533,62 @@ app.delete('/delCat/:id', async (req, res) => {
         }
     });
 
-    app.post('/addComan', async (req, res) => {
+app.post('/addComan', async (req, res) => {
         console.log("addComan")
         const prod = req.body
+        console.log(prod)
+        if (prod.contingut != null && prod.contingut != "" && prod.client != null && prod.client != "") {
+        try {
+            const connection = await mysql.createConnection(config);
+    
+            const insertQuery = `INSERT INTO comandes (contingut, client) VALUES (?, ?)`;
+    
+            prod.contingut = JSON.stringify(prod.contingut);
+
+            await connection.execute(insertQuery, [
+                prod.contingut,
+                prod.client
+            ]);
+    
+    
+            const [result] = await connection.execute('SELECT LAST_INSERT_ID() as id');
+            const lastInsertedId = result[0].id;
+            res.send(lastInsertedId.toString());
+    
+        } catch (err) {
+            console.error('Error MySQL', err)
+            res.status(500).send('Error data')
+        }
+        }
+         else {
+        res.json("Na puede estar vacio");
+        }
+    });
+
+
+    app.put('/modComan/:id', async (req, res) => {
+        const id = req.params.id;
+        console.log("modifComan")
+        const prod = req.body
+    
         if (prod.contingut != null && prod.contingut != "" && prod.estat != null && prod.estat != "" && prod.client != null && prod.client != "") {
+        
         try {
             const connection = await mysql.createConnection(config);
     
             const insertQuery = `
-                INSERT INTO comandes (data,contingut, estat, client)
-                VALUES (?, ?, ?)
+                UPDATE comandes SET data = ?, contingut = ?, estat = ?, client = ?  WHERE id = ?
             `;
     
             await connection.execute(insertQuery, [
                 prod.data,
                 prod.contingut,
                 prod.estat,
-                prod.client
+                prod.client,
+                id
             ]);
     
-            const [rows] = await connection.execute('SELECT id FROM comandes WHERE id = ?', [prod.id]);
+            const [rows] = await connection.execute('SELECT * FROM comandes');
     
             res.json(rows);
     
@@ -563,48 +601,6 @@ app.delete('/delCat/:id', async (req, res) => {
         res.json("Na puede estar vacio");
         }
     });
-
-    // Endpoint para obtener los estados de la comanda
-    app.get('/estatsComanda', async (req, res) => {
-        const connection = await mysql.createConnection(config);
-        const [rows] = await connection.execute(`SHOW COLUMNS FROM comandes LIKE 'estat'`);
-        const enumColumn = rows[0].Type;
-
-        const enumValues = enumColumn.match(/enum\((.*)\)/)[1] // Get the inner content between parentheses
-        .split(',') // Split by comma
-        .map(value => value.replace(/'/g, '')); // Remove single quotes around each value
-
-    console.log(enumValues);
-
-        res.json(enumValues);
-    });
-
-
-    app.put('/modComan/:id', async (req, res) => {
-        const id = req.params.id;
-        const { estat } = req.body;
-    
-        // Verificar que el nuevo estado esté en los valores válidos de ENUM
-        const connection = await mysql.createConnection(config);
-        const [enumValues] = await connection.execute(`SHOW COLUMNS FROM comandes LIKE 'estat'`);
-        const validValues = enumValues[0].Type.match(/enum\((.*)\)/)[1].split(',').map(val => val.replace(/'/g, ''));
-    
-        if (!validValues.includes(estat)) {
-            return res.status(400).json({ error: "Estado no válido" });
-        }
-    
-        try {
-            const updateQuery = `UPDATE comandes SET estat = ? WHERE id = ?`;
-            await connection.execute(updateQuery, [estat, id]);
-            const [updatedRow] = await connection.execute(`SELECT * FROM comandes WHERE id = ?`, [id]);
-            connection.end();
-            res.json(updatedRow[0]);
-        } catch (error) {
-            console.error('Error al actualizar el estado:', error);
-            res.status(500).json({ error: 'Error al actualizar el estado de la comanda' });
-        }
-    });
-    
 
 app.listen(26968, () => {
     console.log('localhost:26968')
