@@ -1,5 +1,7 @@
-const cors = require('cors')
+const cors = require('cors');
 const express = require('express');
+const http = require('http'); // Importar http
+const socketIo = require('socket.io'); // Importar socket.io
 const app = express();
 const mysql = require('mysql2/promise');
 const multer = require('multer');
@@ -8,8 +10,18 @@ const bcrypt = require('bcrypt');
 
 app.use(express.json());
 app.use(cors());
-
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Crear un servidor HTTP
+const server = http.createServer(app);
+const io = socketIo(server, {
+    cors: {
+        origin: "http://localhost:3000", // Ajusta según sea necesario
+        methods: ["GET", "POST"],
+        allowedHeaders: ["my-custom-header"],
+        credentials: true
+    }
+});
 
 const config = {
     host: 'localhost',
@@ -592,30 +604,79 @@ app.post('/addComan', async (req, res) => {
     app.put('/modComan/:id', async (req, res) => {
         const id = req.params.id;
         const { estat } = req.body;
+        
+        console.log(`PUT /modComan/${id} con estado: ${estat}`); // Registro de la solicitud
     
-        // Verificar que el nuevo estado esté en los valores válidos de ENUM
         const connection = await mysql.createConnection(config);
         const [enumValues] = await connection.execute(`SHOW COLUMNS FROM comandes LIKE 'estat'`);
         const validValues = enumValues[0].Type.match(/enum\((.*)\)/)[1].split(',').map(val => val.replace(/'/g, ''));
     
         if (!validValues.includes(estat)) {
+            console.log('Estado no válido:', estat); // Registro de estado no válido
             return res.status(400).json({ error: "Estado no válido" });
         }
     
         try {
             const updateQuery = `UPDATE comandes SET estat = ? WHERE id = ?`;
             await connection.execute(updateQuery, [estat, id]);
+            
+            io.emit('comandaUpdated', { id, estat }); 
+            console.log('Comanda actualizada:', { id, estat }); // Registro de la actualización
+    
             const [updatedRow] = await connection.execute(`SELECT * FROM comandes WHERE id = ?`, [id]);
             connection.end();
             res.json(updatedRow[0]);
         } catch (error) {
-            console.error('Error al actualizar el estado:', error);
+            console.error('Error al actualizar el estado:', error); // Registro de error
             res.status(500).json({ error: 'Error al actualizar el estado de la comanda' });
         }
     });
+    io.on('connection', (socket) => {
+        console.log('Nuevo cliente conectado');
     
+        socket.on('updateComanda', async (data) => {
+            // Aquí puedes llamar a tu función para actualizar la base de datos
+            try {
+                const { id, estat } = data;
+                await updateComandaInDatabase(id, estat); // Asegúrate de que esta función existe y funciona correctamente
+                // Emitir el evento para que todos los clientes actualicen la UI
+                io.emit('comandaUpdated', { id, estat });
+            } catch (error) {
+                console.error("Error al actualizar la comanda:", error);
+            }
+        });
+        
+    });
+    async function updateComandaInDatabase(id, estat){
+        console.log(`PUT /modComan/${id} con estado: ${estat}`); // Registro de la solicitud
     
-
-app.listen(26968, () => {
-    console.log('localhost:26968')
-});
+        const connection = await mysql.createConnection(config);
+        const [enumValues] = await connection.execute(`SHOW COLUMNS FROM comandes LIKE 'estat'`);
+        const validValues = enumValues[0].Type.match(/enum\((.*)\)/)[1].split(',').map(val => val.replace(/'/g, ''));
+    
+        if (!validValues.includes(estat)) {
+            console.log('Estado no válido:', estat); // Registro de estado no válido
+            return res.status(400).json({ error: "Estado no válido" });
+        }
+    
+        try {
+            const updateQuery = `UPDATE comandes SET estat = ? WHERE id = ?`;
+            await connection.execute(updateQuery, [estat, id]);
+            
+            io.emit('comandaUpdated', { id, estat }); 
+            console.log('Comanda actualizada:', { id, estat }); // Registro de la actualización
+    
+            const [updatedRow] = await connection.execute(`SELECT * FROM comandes WHERE id = ?`, [id]);
+            connection.end();
+            return updatedRow[0]
+        } catch (error) {
+            console.error('Error al actualizar el estado:', error); // Registro de error
+            return "error"
+        }
+    }
+    
+    // Cambiar app.listen a server.listen
+    server.listen(26968, () => {
+        console.log('Servidor escuchando en http://localhost:26968');
+    });
+    
