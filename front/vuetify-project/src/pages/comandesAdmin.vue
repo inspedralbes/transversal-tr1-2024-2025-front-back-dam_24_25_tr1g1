@@ -30,37 +30,59 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { callGetComandes, callUpdateComandaStatus } from '../services/communicationManager.js';
+import { callGetComandes, callUpdateComandaStatus, callGetEstats } from '../services/communicationManager.js';
+import { io } from 'socket.io-client';
 
 const comandes = ref([]);
+const estatOptions = ref([]);
 
-// Cargar comandas al montar el componente
+// Conectar con el servidor Socket.IO
+const socket = io('http://localhost:26968'); // Asegúrate de que esta URL sea correcta
+
+// Cargar comandas y estados al montar el componente
 onMounted(async () => {
     comandes.value = await callGetComandes();
+    estatOptions.value = await callGetEstats(); // Obtener los estados de la base de datos
+
+    // Escuchar el evento de actualización de comanda
+    socket.on('comandaUpdated', (data) => {
+        // Encontrar la comanda actualizada
+        const comanda = comandes.value.find(c => c.id === data.id);
+        if (comanda) {
+            // Actualizar el estado de la comanda con la información recibida
+            comanda.estat = data.estat;
+            console.log(`Comanda con ID ${data.id} actualizada a estado: ${data.estat}`); // Registro para depuración
+        }
+    });
 });
 
 // Función para cambiar el estado de la comanda
 const toggleEstat = async (comanda) => {
     if (!isFinalEstat(comanda.estat)) {
-        const nextState = getNextEstat(comanda.estat); 
-        comanda.estat = nextState; 
-        await callUpdateComandaStatus(comanda.id, nextState); 
+        const nextState = getNextEstat(comanda.estat);
+        
+        try {
+            await callUpdateComandaStatus(comanda.id, nextState);
+            // Enviar el evento de actualización a través de Socket.IO
+            socket.emit('updateComanda', { id: comanda.id, estat: nextState }); // Emitir evento para que otros clientes lo reciban
+        } catch (error) {
+            console.error("Error al actualizar el estado en la base de datos:", error);
+        }
     }
 };
 
 // Función auxiliar para obtener el próximo estado
 const getNextEstat = (currentEstat) => {
-    const estatSequence = ["En cuina", "Preparant", "Preparat per recollir", "Lliurat"];
-    const currentIndex = estatSequence.indexOf(currentEstat);
-    return estatSequence[(currentIndex + 1) % estatSequence.length];
+    const currentIndex = estatOptions.value.indexOf(currentEstat);
+    if (currentIndex === -1) return currentEstat; // Si no se encuentra, retornar el actual
+    return estatOptions.value[(currentIndex + 1) % estatOptions.value.length];
 };
 
-// Función auxiliar para verificar si el estado es el final
 const isFinalEstat = (estat) => {
-    return estat === "Lliurat";
+    return estat === estatOptions.value[estatOptions.value.length - 1];
 };
-</script>
 
+</script>
 
 <style scoped>
 li {

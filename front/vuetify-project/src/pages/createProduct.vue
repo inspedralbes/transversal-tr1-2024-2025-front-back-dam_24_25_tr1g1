@@ -128,10 +128,6 @@ onMounted(async () => {
         crustacis: crustacis.value ? 1 : 0
     };
 
-
-    
- 
-
     // Solo para verificación:
     
     const imageInput = document.querySelector('input[type="file"]');

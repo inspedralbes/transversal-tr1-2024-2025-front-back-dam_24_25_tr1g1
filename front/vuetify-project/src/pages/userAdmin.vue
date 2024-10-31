@@ -57,12 +57,15 @@ const confirmDeleteUser = async (id) => {
     }
 };
 
-// Función para actualizar el estado de admin del usuario
+
 const toggleAdmin = async (user) => {
     user.admin = user.adminBoolean ? 1 : 0; 
+    console.log(`Updating admin status for user ${user.id}: ${user.admin}`); 
     try {
         await callPutUser(user); 
+        alert("Estado de admin actualizado con éxito."); 
     } catch (error) {
+        console.error(error); 
         alert("No se pudo actualizar el estado de admin del usuario.");
     }
 };

@@ -150,62 +150,103 @@ export async function callDeleteCategory(id) {
 }
 
 
-import usersData from '../assets/users.json';
-
-// Crear un objeto que permita la mutabilidad
-let usersDatabase = JSON.parse(JSON.stringify(usersData));
+//USUARIS
 
 export async function callGetUsers() {
-    return usersDatabase;
+    const response = await fetch(`${import.meta.env.VITE_API_BACK}/getUsers`, {
+
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    const users = await response.json();
+    return users;
 }
 
 export async function callGetUserById(id) {
-    const user = usersDatabase.find(user => user.id === parseInt(id)); // Convertir a número
+   const user = usersDatabase.find(user => user.id === parseInt(id));
     if (user) {
-        return user;
+       return user;
     } else {
-        throw new Error("Usuario no encontrado");
+       throw new Error("Usuario no encontrado");
     }
 }
 
-export async function callPutUser(updatedUser) {
-    const index = usersDatabase.findIndex(user => user.id === parseInt(updatedUser.id)); // Asegúrate de que el ID sea un número
-    if (index !== -1) {
-        usersDatabase[index] = { ...usersDatabase[index], ...updatedUser }; // Actualiza el usuario
-        return usersDatabase[index]; // Devuelve el usuario actualizado
-    } else {
-        throw new Error("Usuario no encontrado");
-    }
+export async function callPutUser(usuaris) {
+    const response = await fetch(`${import.meta.env.VITE_API_BACK}/editUserAdmin/${usuaris.id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            admin: usuaris.admin 
+        })
+    });
+
+    const updatedUser = await response.json();
+    return updatedUser;
 }
+
+
 export async function callDeleteUser(id) {
-    const index = usersDatabase.findIndex(user => user.id === id);
-    if (index !== -1) {
-        usersDatabase.splice(index, 1); // Elimina el usuario
-    } else {
-        throw new Error("Usuario no encontrado");
-    }
+    const response = await fetch(`${import.meta.env.VITE_API_BACK}/deleteUser/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    const deleteUser = await response.json();
+    return deleteUser;
 }
 
-// JSON de ejemplo para simular una base de datos
-let comandesDatabase = [
-    { id: 1, data: "2024-11-07", contingut: "dsadadas", estat: "En cuina", client: 1 },
-    { id: 2, data: "2024-10-08", contingut: "ddsadasdassadadas", estat: "Preparant", client: 1 },
-    { id: 3, data: "2024-10-15", contingut: "comanda de prova", estat: "Lliurat", client: 2 }
-];
 
-// Función para obtener la lista de comandas
+//COMANDES
 export async function callGetComandes() {
-    return comandesDatabase;
+    const response = await fetch(`${import.meta.env.VITE_API_BACK}/getComan`, {
+
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    const comandes = await response.json();
+    return comandes;
 }
 
-// Función para actualizar el estado de una comanda
+
 export async function callUpdateComandaStatus(id, newStatus) {
-    const comanda = comandesDatabase.find(c => c.id === id);
-    if (comanda) {
-        comanda.estat = newStatus;
-        return comanda;
-    } else {
-        throw new Error("Comanda no encontrada");
+    console.log(newStatus)
+    const response = await fetch(`${import.meta.env.VITE_API_BACK}/modComan/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ estat: newStatus }), // Envío del nuevo estado
+    });
+
+    if (!response.ok) {
+        throw new Error("No se pudo actualizar el estado de la comanda");
+    }
+
+    return await response.json(); // Devolver la respuesta actualizada
+}
+// Función para obtener los estados de la base de datos
+// communicationManager.js
+export async function callGetEstats() {
+    try {
+        const response = await fetch(`${import.meta.env.VITE_API_BACK}/estatsComanda`);
+        if (!response.ok) {
+            throw new Error("No se pudieron obtener los estados");
+        }
+        const estatOptions = await response.json();
+        return estatOptions;
+    } catch (error) {
+        console.error("Error al obtener los estados:", error);
+        throw error;
     }
 }
 

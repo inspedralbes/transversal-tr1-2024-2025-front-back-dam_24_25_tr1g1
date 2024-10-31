@@ -5,7 +5,6 @@
     </v-app-bar>
 
     <v-btn color="primary" :to="'/createProduct'">Crear producte</v-btn>
-    <v-btn @click="refresh()">Refresh</v-btn>
   <v-container class="fill-height">
     <div >
       <div
@@ -14,7 +13,9 @@
         <h2>{{ category.nom }}</h2>
         <ul class="grid">
           <li v-for="product in products.filter(p => p.category === category.id)" :key="product.id" >
-            <tarjeta :product="product"/>
+            <tarjeta
+             :product="product"
+             @productDeleted="handleProductDeleted"/>
             
           </li>
         </ul>
@@ -38,9 +39,9 @@ onMounted(async () => {
 });
 
 
-const refresh = async () => {
-  categories.value = await callGetCategories();
-  products.value = await callGetProducts();
+// Método para manejar la eliminación del producto
+const handleProductDeleted = (id) => {
+  products.value = products.value.filter(product => product.id !== id);
 };
 
 </script>
