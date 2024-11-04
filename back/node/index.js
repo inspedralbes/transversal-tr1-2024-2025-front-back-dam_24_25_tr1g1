@@ -23,8 +23,8 @@ const io = socketIo(server, {
 
 const config = {
     host: 'localhost',
-    user: 'a20erigomvil_grillgrab',
-    password: 'GrillGrab123!',
+    user: 'root',
+    password: '',
     database: 'a20erigomvil_grillgrab',
     port: 3306 
 };

@@ -17,6 +17,9 @@
                                 label="Admin"
                                 @change="toggleAdmin(user)"
                             ></v-checkbox>
+                            <v-btn icon :to="'/showCommands/'+user.id">
+                                <v-icon>mdi-cart</v-icon>
+                            </v-btn>
 
                             <v-btn icon @click="confirmDeleteUser(user.id)">
                                 <v-icon>mdi-delete</v-icon>
