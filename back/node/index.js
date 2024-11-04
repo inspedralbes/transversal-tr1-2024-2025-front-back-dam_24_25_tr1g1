@@ -16,17 +16,15 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
-        origin: "http://localhost:3000", // Ajusta según sea necesario
+        origin: "*",
         methods: ["GET", "POST"],
-        allowedHeaders: ["my-custom-header"],
-        credentials: true
     }
 });
 
 const config = {
     host: 'localhost',
-    user: 'root',
-    password: '',
+    user: 'a20erigomvil_grillgrab',
+    password: 'GrillGrab123!',
     database: 'a20erigomvil_grillgrab',
     port: 3306 
 };
@@ -480,7 +478,7 @@ app.delete('/delCat/:id', async (req, res) => {
         }
     });
     
-    //COMANDES
+//COMANDES
     app.get('/getComan', async (req, res) => {
         console.log('getComan')
     
@@ -501,6 +499,84 @@ app.delete('/delCat/:id', async (req, res) => {
             }
         }
     });
+
+    app.get('/getComan/:id', async (req, res) => {
+        console.log('getComanId')
+        const id = req.params.id;
+
+    
+        try {
+            connection = await mysql.createConnection(config);
+    
+            const [rows] = await connection.execute(
+                'SELECT * FROM comandes WHERE id = ?',
+                [id]
+            );
+            const productos = rows;
+    
+            res.json(productos);
+        } catch (err) {
+            console.error('Error MySQL', err)
+            res.status(500).send('Error data')
+        } finally {
+            if (connection) {
+                await connection.end()
+            }
+        }
+    });
+
+    app.get('/getComanContent/:id', async (req, res) => {
+        console.log('getComanId')
+        const id = req.params.id;
+
+        try {
+            connection = await mysql.createConnection(config);
+
+            const [rows] = await connection.execute(
+                'SELECT contingut FROM comandes WHERE id = ?',
+                [id]
+            );
+
+            if (rows.length > 0) {
+                res.send(rows[0].contingut);
+            } else {
+                res.status(404).send('No se encontró la comanda');
+            }
+        } catch (err) {
+            console.error('Error MySQL', err)
+            res.status(500).send('Error data')
+        } finally {
+            if (connection) {
+                await connection.end()
+            }
+        }
+    });
+
+    app.get('/getComanClient/:client', async (req, res) => {
+        console.log('getComanUsers')
+        const client = req.params.client;
+
+    
+        try {
+            connection = await mysql.createConnection(config);
+    
+            const [rows] = await connection.execute(
+                'SELECT * FROM comandes WHERE client = ?',
+                [client]
+            );
+            const productos = rows;
+    
+            res.json(productos);
+        } catch (err) {
+            console.error('Error MySQL', err)
+            res.status(500).send('Error data')
+        } finally {
+            if (connection) {
+                await connection.end()
+            }
+        }
+    });
+
 
 app.post('/addComan', async (req, res) => {
         console.log("addComan")
