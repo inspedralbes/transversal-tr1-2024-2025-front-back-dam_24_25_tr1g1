@@ -47,6 +47,35 @@ export async function callPostProduct(product, image) {
     const newProduct = await response.json();
     return newProduct;
 }
+export async function updateComandaInDatabase(id, estat) {
+    console.log(`PUT /modComan/${id} con estado: ${estat}`); // Registro de la solicitud
+
+    const connection = await mysql.createConnection(config);
+    const [enumValues] = await connection.execute(`SHOW COLUMNS FROM comandes LIKE 'estat'`);
+    const validValues = enumValues[0].Type.match(/enum\((.*)\)/)[1].split(',').map(val => val.replace(/'/g, ''));
+
+    if (!validValues.includes(estat)) {
+        console.log('Estado no válido:', estat); // Registro de estado no válido
+        return res.status(400).json({ error: "Estado no válido" });
+    }
+
+    try {
+        const updateQuery = `UPDATE comandes SET estat = ? WHERE id = ?`;
+        await connection.execute(updateQuery, [estat, id]);
+
+        io.emit('comandaUpdated', { id, estat });
+        console.log('Comanda actualizada:', { id, estat }); // Registro de la actualización
+
+        const [updatedRow] = await connection.execute(`SELECT * FROM comandes WHERE id = ?`, [id]);
+        connection.end();
+        return updatedRow[0]
+    } catch (error) {
+        console.error('Error al actualizar el estado:', error); // Registro de error
+        return "error"
+    }
+}
+
+
 
 export async function callPutProduct(product, image) {
     const formData = new FormData();
