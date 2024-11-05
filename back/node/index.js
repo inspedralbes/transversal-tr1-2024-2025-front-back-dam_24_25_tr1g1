@@ -44,7 +44,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Ruta para obtener datos de clientes
 app.get('/clientes', async (req, res) => {
     let connection;
     try {
@@ -52,37 +51,82 @@ app.get('/clientes', async (req, res) => {
 
         const query = `
             SELECT 
-                c.id, c.nom, v.contingut, v.client
+                u.id AS ID, 
+                u.nom AS Clientes, 
+                COUNT(c.client) AS Ventes, 
+                COALESCE(SUM(c.Total), 0) AS Diners
             FROM 
-                usuaris c
+                usuaris u
             LEFT JOIN 
-                comandes v ON c.id = v.client
+                comandes c ON u.id = c.client
             GROUP BY 
-                c.id, c.nom  
+                u.id, u.nom  
         `;
 
         const [rows] = await connection.execute(query);
-        let jsonData={"usuaris":[]};
+
+        let jsonData = { "usuaris": [] };
+
         rows.forEach(row => {
-            console.log(row)
-            let index=jsonData.usuaris.findIndex((row.id)===id)
-            if(index==-1){
-                jsonData.usuaris.push(row)
-            } else{
-                jsonData.usuaris[index].
-            }
+            // Calcular Diners/venda (dinero por venta)
+            let dinersVenda = row.Ventes > 0 ? (row.Diners / row.Ventes).toFixed(2) : 0;
+
+            jsonData.usuaris.push({
+                "ID": row.ID,
+                "Clients": row.Clientes,
+                "Ventes": row.Ventes,
+                "Diners": row.Diners,
+                "Diners/venda": parseFloat(dinersVenda),
+                "Moneda": "€"
+            });
         });
-        res.json(rows);
+
+        res.json(jsonData);
+
     } catch (err) {
         console.error('Error MySQL', err);
-        res.status(500).send('Error data');
+        res.status(500).send('Error en los datos');
     } finally {
         if (connection) {
             await connection.end();
         }
     }
 });
+app.get('/historial_vendas', async (req, res) => {
+    const email = req.query.email; 
+    let connection;
+    try {
+        connection = await mysql.createConnection(config);
 
+        const query = `
+            SELECT 
+                c.id AS comanda_id,
+                c.Total AS diners_gastats,
+                c.data AS data_comanda
+            FROM 
+                usuaris u
+            JOIN 
+                comandes c ON u.id = c.client
+            WHERE 
+                u.correu = ?  `; 
+
+        const [rows] = await connection.execute(query, [email]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: "No se encontraron ventas para este correo." });
+        }
+
+        res.json(rows);
+
+    } catch (err) {
+        console.error('Error MySQL', err);
+        res.status(500).send('Error en los datos');
+    } finally {
+        if (connection) {
+            await connection.end();
+        }
+    }
+});
 
 
 app.get('/getProd', async (req, res) => {
@@ -551,7 +595,8 @@ app.post('/addComan', async (req, res) => {
         try {
             const connection = await mysql.createConnection(config);
 
-            const insertQuery = `INSERT INTO comandes (contingut, client) VALUES (?, ?)`;
+            
+            const insertQuery = `INSERT INTO comandes (contingut, client, data) VALUES (?, ?, NOW())`;
 
             prod.contingut = JSON.stringify(prod.contingut);
 
@@ -559,7 +604,6 @@ app.post('/addComan', async (req, res) => {
                 prod.contingut,
                 prod.client
             ]);
-
 
             const [result] = await connection.execute('SELECT LAST_INSERT_ID() as id');
             const lastInsertedId = result[0].id;
@@ -571,9 +615,10 @@ app.post('/addComan', async (req, res) => {
         }
     }
     else {
-        res.json("Na puede estar vacio");
+        res.json("No puede estar vacío");
     }
 });
+
 
 app.get('/estatsComanda', async (req, res) => {
     try {
