@@ -28,10 +28,9 @@ const config = {
     port: 3306
 };
 
-// Configuración de multer para almacenar las imágenes en una carpeta del servidor
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/'); // Carpeta donde se guardarán las imágenes
+        cb(null, 'uploads/'); 
     },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
