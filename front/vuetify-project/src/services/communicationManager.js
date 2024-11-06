@@ -1,3 +1,6 @@
+import { io } from 'socket.io-client';
+const socket = io('http://pregrillgrab.dam.inspedralbes.cat:26968'); 
+
 export async function callGetProducts() {
     const response = await fetch(`${import.meta.env.VITE_API_BACK}/getProd`, {
         method: 'GET',
@@ -10,6 +13,8 @@ export async function callGetProducts() {
     return products;
     
 }
+
+export default socket;
 
 export async function callGetProductById(id) {
     const response = await fetch(`${import.meta.env.VITE_API_BACK}/getProd/${id}`, {

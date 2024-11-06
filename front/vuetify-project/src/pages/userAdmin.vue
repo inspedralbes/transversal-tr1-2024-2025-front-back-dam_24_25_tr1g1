@@ -76,7 +76,7 @@ onMounted(async () => {
 // Función para mostrar el gráfico en el modal
 const showStats = async () => {
     try {
-        const response = await fetch("http://localhost:26968/generate-client-stats");
+        const response = await fetch("http://pregrillgrab.dam.inspedralbes.cat:26968/generate-client-stats");
         const data = await response.json();
         
         // Si la URL de la imagen está disponible, abrirla en el modal

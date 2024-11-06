@@ -52,7 +52,7 @@ app.get('/clientes', async (req, res) => {
                 u.id AS ID, 
                 u.nom AS Clientes, 
                 COUNT(c.client) AS Ventes, 
-                COALESCE(SUM(c.Total), 0) AS Diners
+                COALESCE(SUM(c.preuComanda), 0) AS Diners
             FROM 
                 usuaris u
             LEFT JOIN 
@@ -120,7 +120,7 @@ app.get('/historial_vendas', async (req, res) => {
         const query = `
             SELECT 
                 c.id AS comanda_id,
-                c.Total AS diners_gastats,
+                c.preuComanda AS diners_gastats,
                 c.data AS data_comanda
             FROM 
                 usuaris u

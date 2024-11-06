@@ -36,8 +36,6 @@ import { io } from 'socket.io-client';
 const comandes = ref([]);
 const estatOptions = ref([]);
 
-// Conectar con el servidor Socket.IO
-const socket = io('http://localhost:26968'); // Asegúrate de que esta URL sea correcta
 
 // Cargar comandas y estados al montar el componente
 onMounted(async () => {
