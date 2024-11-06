@@ -1,8 +1,12 @@
 <template>
     <v-container>
         <h1>Usuaris</h1>
+        <v-btn class="ml-4" color="primary" @click="showStats">
+                Ver estadísticas
+            </v-btn>
         <v-list >
             <v-list-item v-for="user in users" :key="user.id" class="container">
+
                 <v-row align="center" justify="space-between" class="w-100">
                     <v-col>
                         <v-list-item-content>
@@ -38,6 +42,23 @@
                 </v-row>
             </v-list-item>
         </v-list>
+
+        <!-- Ventana emergente para mostrar la imagen -->
+        <v-dialog v-model="isModalVisible" max-width="800px">
+            <v-card>
+                <v-card-title>
+                    <span class="headline">Estadísticas de Clientes</span>
+                </v-card-title>
+                <v-card-text>
+                    <!-- Mostrar la imagen en el modal -->
+                    <img :src="statsImageUrl" alt="Estadísticas de Clientes" class="full-width" />
+                </v-card-text>
+                <v-card-actions>
+                    <v-btn color="blue darken-1" text @click="isModalVisible = false">Cerrar</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
     </v-container>
 </template>
 
@@ -47,15 +68,35 @@ import { ref, onMounted } from 'vue';
 import { callGetUsers, callDeleteUser, callPutUser } from '../services/communicationManager.js';
 
 let users = ref([]);
+let statsImageUrl = ref(null); // La URL de la imagen del gráfico
+let isModalVisible = ref(false); // Controla la visibilidad del modal
 
 // Cargar usuarios al montar el componente y convertir admin a booleano
 onMounted(async () => {
     const fetchedUsers = await callGetUsers();
     users.value = fetchedUsers.map(user => ({
         ...user,
-        adminBoolean: Boolean(user.admin) 
+        adminBoolean: Boolean(user.admin)
     }));
 });
+
+// Función para mostrar el gráfico en el modal
+const showStats = async () => {
+    try {
+        const response = await fetch("http://localhost:26968/generate-client-stats");
+        const data = await response.json();
+        
+        // Si la URL de la imagen está disponible, abrirla en el modal
+        if (data.imageUrl) {
+            statsImageUrl.value = data.imageUrl;
+            isModalVisible.value = true; // Mostrar el modal
+        } else {
+            console.error("No se obtuvo la URL de la imagen");
+        }
+    } catch (error) {
+        console.error("Error al obtener las estadísticas:", error);
+    }
+};
 
 // Función para confirmar y eliminar un usuario
 const confirmDeleteUser = async (id) => {
@@ -70,7 +111,7 @@ const confirmDeleteUser = async (id) => {
     }
 };
 
-
+// Función para actualizar el estado de admin
 const toggleAdmin = async (user) => {
     user.admin = user.adminBoolean ? 1 : 0; 
     console.log(`Updating admin status for user ${user.id}: ${user.admin}`); 
@@ -84,12 +125,24 @@ const toggleAdmin = async (user) => {
 };
 </script>
 
+
 <style scoped>
+.title-with-button {
+    display: flex;
+    align-items: center;
+}
+
+.stats-image-container {
+    margin-top: 20px;
+    text-align: center;
+}
+
 li {
     list-style-type: circle;
     display: flex;
     align-items: center;
 }
+
 .user-item {
     position: relative;
     padding-left: 20px;
@@ -101,5 +154,11 @@ li {
 .container:nth-child(even) {
     background-color: #f9f9f9;
 }
-
+.full-width {
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+}
 </style>
+
+
