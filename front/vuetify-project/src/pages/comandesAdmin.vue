@@ -3,12 +3,44 @@
         <h1>Comandes</h1>
         <v-list>
             <v-list-item v-for="comanda in comandes" :key="comanda.id">
-                <v-row align="center" justify="space-between" class="w-100">
-                    <v-col>
-                        <v-list-item-content>
+                <v-row align="center" justify="space-between" class="w-100" :class="{ cancel: comanda.cancel === 1 }">
+                    <v-col >
+                        <v-list-item-content >
                             <v-list-item-title>ID: {{ comanda.id }}</v-list-item-title>
                             <v-list-item-subtitle>Data: {{ comanda.data }}</v-list-item-subtitle>
-                            <v-list-item-subtitle>Contingut: {{ comanda.contingut }}</v-list-item-subtitle>
+                        
+                            <v-dialog max-width="500">
+  <template v-slot:activator="{ props: activatorProps }">
+    <v-btn
+      v-bind="activatorProps"
+      color="surface-variant"
+      text="Contingut de la comanda"
+      variant="flat"
+    ></v-btn>
+  </template>
+
+  <template v-slot:default="{ isActive }">
+    <v-card :title="'Contingut de la comanda '+comanda.id">
+      <v-card-text>
+        <ul>
+            <li v-for="element in JSON.parse(comanda.contingut)"> 
+                {{element.nom}} x  {{element.quantitat}}  = {{element.preuTotal}}€
+            </li>
+        </ul>
+        <p>Total: {{ calcularTotal(comanda.contingut)}}€</p>
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+
+        <v-btn
+          text="tancar dialeg"
+          @click="isActive.value = false"
+        ></v-btn>
+      </v-card-actions>
+    </v-card>
+  </template>
+</v-dialog>
                             <v-list-item-subtitle>Estat: {{ comanda.estat }}</v-list-item-subtitle>
                             <v-list-item-subtitle>Client: {{ comanda.client }}</v-list-item-subtitle>
                         </v-list-item-content>
@@ -17,7 +49,7 @@
                         <v-btn 
                             @click="toggleEstat(comanda)" 
                             color="primary" 
-                            :disabled="isFinalEstat(comanda.estat)"
+                            :disabled="isFinalEstat(comanda.estat)||comanda.cancel === 1"
                         >
                             Canviar Estat
                         </v-btn>
@@ -82,6 +114,14 @@ const isFinalEstat = (estat) => {
     return estat === estatOptions.value[estatOptions.value.length - 1];
 };
 
+const calcularTotal = (contingut) => {
+    let total = 0;
+    JSON.parse(contingut).forEach(element => {
+        total += element.preuTotal;
+    });
+    return total;
+};
+
 </script>
 
 <style scoped>
@@ -89,5 +129,12 @@ li {
     list-style-type: circle;
     display: flex;
     align-items: center;
+}
+.cancel {
+    opacity: 50%;
+    background-color: rgb(190, 67, 67);
+
+    border-radius: 10px;
+    margin: 0;
 }
 </style>

@@ -1,8 +1,8 @@
 <template>
     <v-container>
         <h1>Usuaris</h1>
-        <v-list>
-            <v-list-item v-for="user in users" :key="user.id">
+        <v-list >
+            <v-list-item v-for="user in users" :key="user.id" class="container">
                 <v-row align="center" justify="space-between" class="w-100">
                     <v-col>
                         <v-list-item-content>
@@ -10,13 +10,22 @@
                             <v-list-item-subtitle>{{ user.correu }}</v-list-item-subtitle>
                         </v-list-item-content>
                     </v-col>
-                    <v-col class="d-flex justify-end">
-                        <v-list-item-action>
+                    <v-col class="d-flex justify-center align-center">
+                        <v-row>
+
+                        </v-row>
+                        <v-row align="center">
                             <v-checkbox
                                 v-model="user.adminBoolean"
-                                label="Admin"
                                 @change="toggleAdmin(user)"
+                                label="Admin"
                             ></v-checkbox>
+                        </v-row>
+                       
+                    </v-col>
+                    <v-col class="d-flex justify-end">
+                        <v-list-item-action>
+                            
                             <v-btn icon :to="'/showCommands/'+user.id">
                                 <v-icon>mdi-cart</v-icon>
                             </v-btn>
@@ -31,6 +40,7 @@
         </v-list>
     </v-container>
 </template>
+
 
 <script setup>
 import { ref, onMounted } from 'vue';
@@ -84,4 +94,12 @@ li {
     position: relative;
     padding-left: 20px;
 }
+.container:nth-child(odd) {
+    background-color: #f2f2f2;
+
+}
+.container:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
 </style>

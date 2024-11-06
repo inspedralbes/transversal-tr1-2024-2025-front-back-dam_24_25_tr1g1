@@ -12,7 +12,7 @@
             </v-row>
         </v-form>
         <v-list>
-            <v-list-item v-for="category in categories" :key="category.id">
+            <v-list-item v-for="category in categories" :key="category.id" class="category">
                 <v-row align="center" justify="space-between" class="w-100">
                     <v-col>
                         <v-list-item-content>
@@ -75,5 +75,11 @@ li {
 .category-item {
     position: relative;
     padding-left: 20px;
+}
+.category:nth-child(odd){
+    background-color: #f0f0f0;
+}
+.category:nth-child(even){
+    background-color: #f8f8f8;
 }
 </style>
