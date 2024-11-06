@@ -14,14 +14,11 @@ app.use(express.json());
 app.use(cors());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Crear un servidor HTTP
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
-        origin: "http://localhost:3000", // Ajusta según sea necesario
+        origin: "*",
         methods: ["GET", "POST"],
-        allowedHeaders: ["my-custom-header"],
-        credentials: true
     }
 });
 
@@ -33,10 +30,9 @@ const config = {
     port: 3306
 };
 
-// Configuración de multer para almacenar las imágenes en una carpeta del servidor
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/'); // Carpeta donde se guardarán las imágenes
+        cb(null, 'uploads/'); 
     },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -292,19 +288,16 @@ app.put('/modProd/:id', upload.single('imatge'), async (req, res) => {
             prod.lactosa = getValidValue(prod.lactosa, cosas.lactosa);
             prod.crustacis = getValidValue(prod.crustacis, cosas.crustacis);
 
-            // Actualizar el producto en la base de datos
-            const updateQuery = `
-                UPDATE productes 
-                SET nom = ?, descripcio = ?, fotoRuta = ?, preu = ?, oferta = ?, stock = ?, category = ?, halal = ?, vegan = ?, gluten = ?, lactosa = ?, crustacis = ? 
-                WHERE id = ?;
-            `;
-
+            //let oferta = prod.oferta === "0" ? null : prod.oferta;
+            console.log(prod.oferta)
+            if(prod.oferta != "null"){
+            const updateQuery = 'UPDATE productes SET nom = ?, descripcio = ?, fotoRuta = ?, preu = ?, oferta = ?, stock = ?, category = ?, halal = ?, vegan = ?, gluten = ?, lactosa = ?, crustacis = ? WHERE id = ?;';
             await connection.execute(updateQuery, [
                 prod.nom,
                 prod.descripcio,
                 fotoRuta,
                 prod.preu,
-                oferta,
+                prod.oferta,
                 prod.stock,
                 prod.category,
                 prod.halal,
@@ -314,26 +307,72 @@ app.put('/modProd/:id', upload.single('imatge'), async (req, res) => {
                 prod.crustacis,
                 id
             ]);
+        }
+            else{
+                const updateQuery = 'UPDATE productes SET nom = ?, descripcio = ?, fotoRuta = ?, preu = ?, oferta = ?, stock = ?, category = ?, halal = ?, vegan = ?, gluten = ?, lactosa = ?, crustacis = ? WHERE id = ?;';
+                await connection.execute(updateQuery, [
+                    prod.nom,
+                    prod.descripcio,
+                    fotoRuta,
+                    prod.preu,
+                    null,
+                    prod.stock,
+                    prod.category,
+                    prod.halal,
+                    prod.vegan,
+                    prod.gluten,
+                    prod.lactosa,
+                    prod.crustacis,
+                    id
+                ]); 
+            }
 
-            // Obtener todos los productos y responder
             const [rows] = await connection.execute('SELECT * FROM productes');
             res.json(rows);
+            await connection.end();
 
         } catch (err) {
-            console.error('Error MySQL:', err);
-            res.status(500).json({ error: 'Error actualizando el producto' });
-
-        } finally {
-            // Cerrar la conexión
-            if (connection) {
-                await connection.end();
-            }
+            console.error('Error MySQL', err);
+            res.status(500).send('Error updating product');
         }
-
     } else {
-        res.status(400).json({ error: "Campos obligatorios no pueden estar vacíos" });
+        res.status(400).json("No puede estar vacío");
     }
 });
+
+app.put('/stockProd/:id', upload.single('imatge'), async (req, res) => {
+    console.log("modProd");
+    const id = req.params.id;
+    const cantidad = req.body;
+        try {
+            const connection = await mysql.createConnection(config);
+            const [resultats] = await connection.execute('SELECT * FROM productes WHERE id = ?', [id]);
+            const cosas = resultats[0];
+
+            if (!cosas) {
+                return res.status(404).send('No existe el producto');
+            }
+
+            const stock = cosas.stock - cantidad.stock;
+
+            //let oferta = prod.oferta === "0" ? null : prod.oferta;
+            console.log(prod.oferta)
+            const updateQuery = 'UPDATE productes SET stock = ? WHERE id = ?;';
+            await connection.execute(updateQuery, [
+                stock,
+                id
+            ]);
+
+            const [rows] = await connection.execute('SELECT * FROM productes');
+            res.json(rows);
+            await connection.end();
+
+        } catch (err) {
+            console.error('Error MySQL', err);
+            res.status(500).send('Error updating product');
+        }
+});
+
 
 app.delete('/delProd/:id', async (req, res) => {
     const id = req.params.id;
@@ -604,8 +643,12 @@ app.post('/login', async (req, res) => {
                         rows
                     );
                 } else {
-                    res.status(401).json({ success: false, message: "Correu o contrassenya incorrectes" });
+                    console.log("JAIOSJDOAHNWSDFOJ")
+                    res.json([{ "id": -1 }]);
                 }
+            }
+            else {
+                res.json([{ "id": -1 }])
             }
         } catch (err) {
             console.error('Error MySQL', err);
@@ -638,6 +681,84 @@ app.get('/getComan', async (req, res) => {
     }
 });
 
+app.get('/getComan/:id', async (req, res) => {
+    console.log('getComanId')
+    const id = req.params.id;
+
+
+    try {
+        connection = await mysql.createConnection(config);
+
+        const [rows] = await connection.execute(
+            'SELECT * FROM comandes WHERE id = ?',
+            [id]
+        );
+        const productos = rows;
+
+        res.json(productos);
+    } catch (err) {
+        console.error('Error MySQL', err)
+        res.status(500).send('Error data')
+    } finally {
+        if (connection) {
+            await connection.end()
+        }
+    }
+});
+
+app.get('/getComanContent/:id', async (req, res) => {
+    console.log('getComanId')
+    const id = req.params.id;
+
+    try {
+        connection = await mysql.createConnection(config);
+
+        const [rows] = await connection.execute(
+            'SELECT contingut FROM comandes WHERE id = ?',
+            [id]
+        );
+
+        if (rows.length > 0) {
+            res.send(rows[0].contingut);
+        } else {
+            res.status(404).send('No se encontró la comanda');
+        }
+    } catch (err) {
+        console.error('Error MySQL', err)
+        res.status(500).send('Error data')
+    } finally {
+        if (connection) {
+            await connection.end()
+        }
+    }
+});
+
+app.get('/getComanClient/:client', async (req, res) => {
+    console.log('getComanUsers')
+    const client = req.params.client;
+
+
+    try {
+        connection = await mysql.createConnection(config);
+
+        const [rows] = await connection.execute(
+            'SELECT * FROM comandes WHERE client = ?',
+            [client]
+        );
+        const productos = rows;
+
+        res.json(productos);
+    } catch (err) {
+        console.error('Error MySQL', err)
+        res.status(500).send('Error data')
+    } finally {
+        if (connection) {
+            await connection.end()
+        }
+    }
+});
+
+
 app.post('/addComan', async (req, res) => {
     console.log("addComan")
     const prod = req.body
@@ -653,7 +774,8 @@ app.post('/addComan', async (req, res) => {
 
             await connection.execute(insertQuery, [
                 prod.contingut,
-                prod.client
+                prod.client,
+		prod.preuComanda
             ]);
 
             const [result] = await connection.execute('SELECT LAST_INSERT_ID() as id');
@@ -692,8 +814,34 @@ app.get('/estatsComanda', async (req, res) => {
         console.error('Error al obtener los estados:', error);
         res.status(500).json({ error: 'Error al obtener los estados' }); // Respuesta de error en caso de fallo
     }
-});
 
+});
+app.put("/modUser/:id", async (req, res) => {
+    const id = req.params.id;
+    const {  contrasenya, halal, vegan, gluten, lactosa, crustacis } = req.body;
+
+    if (contrasenya && halal !== undefined && vegan !== undefined && gluten !== undefined && lactosa !== undefined && crustacis !== undefined) {
+        try {
+            const connection = await mysql.createConnection(config);
+            console.log("contrasenya", contrasenya, "halal", halal, "vegan", vegan, "gluten", gluten, "lactosa", lactosa, "crustacis", crustacis, "id", id)
+            const updateQuery = `
+                UPDATE usuaris SET contrasenya = ?, halal = ?, vegan = ?, gluten = ?, lactosa = ?, crustacis = ? WHERE id = ?
+            `;
+
+            await connection.execute(updateQuery, [contrasenya, halal, vegan, gluten, lactosa, crustacis, id]);
+
+            const [rows] = await connection.execute('SELECT * FROM usuaris');
+            res.json(rows);
+
+            await connection.end();
+        } catch (err) {
+            console.error('Error MySQL', err);
+            res.status(500).send('Error al actualizar el usuario');
+        }
+    } else {
+        res.status(400).json("Los campos no pueden estar vacíos");
+    }
+})
 
 app.put('/modComan/:id', async (req, res) => {
     const id = req.params.id;
@@ -727,13 +875,15 @@ app.put('/modComan/:id', async (req, res) => {
 });
 io.on('connection', (socket) => {
     console.log('Nuevo cliente conectado');
+    socket.on("disconnect", () => {
+        console.log('Cliente desconectado')
+    });
 
     socket.on('updateComanda', async (data) => {
-        // Aquí puedes llamar a tu función para actualizar la base de datos
         try {
             const { id, estat } = data;
-            await updateComandaInDatabase(id, estat); // Asegúrate de que esta función existe y funciona correctamente
-            // Emitir el evento para que todos los clientes actualicen la UI
+            await updateComandaInDatabase(id, estat);
+		console.log("this is gonnaUpdate")
             io.emit('comandaUpdated', { id, estat });
         } catch (error) {
             console.error("Error al actualizar la comanda:", error);
@@ -769,7 +919,28 @@ async function updateComandaInDatabase(id, estat) {
     }
 }
 
-// Cambiar app.listen a server.listen
+
+app.put('/delComan/:id', async (req, res) => {
+    const id = req.params.id;
+
+    console.log("delComan " + id);
+
+    const connection = await mysql.createConnection(config);
+
+    try {
+        const updateQuery = `UPDATE comandes SET cancel = 1 WHERE id = ?; `;
+        await connection.execute(updateQuery, [id]);
+
+        const [updatedRow] = await connection.execute(`SELECT * FROM comandes WHERE id = ?`, [id]);
+        connection.end();
+        res.json(updatedRow[0]);
+    } catch (error) {
+        console.error('Error al actualizar el estado:', error);
+        res.status(500).json({ error: 'Error al actualizar el estado de la comanda' });
+    }
+});
+
+
 server.listen(26968, () => {
     console.log('Servidor escuchando en http://localhost:26968');
 });
