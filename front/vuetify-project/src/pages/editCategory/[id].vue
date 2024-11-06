@@ -3,7 +3,7 @@
       <v-form @submit.prevent="sendData">
         <v-text-field label="Nou nom de la categoria" v-model="newName"></v-text-field>
         <v-btn type="submit" class="mr-12" color="primary">Editar</v-btn>
-            <v-btn to="/products" color="red" margin="80px">Cancel·lar</v-btn>
+            <v-btn to="/categoryAdmin" color="red" margin="80px">Cancel·lar</v-btn>
       </v-form>
     </v-container>
   </template>
