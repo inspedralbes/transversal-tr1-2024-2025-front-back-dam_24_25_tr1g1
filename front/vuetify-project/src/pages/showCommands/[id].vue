@@ -32,7 +32,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { callGetComandes, callUpdateComandaStatus, callGetEstats } from '../../services/communicationManager.js';
-import { io } from 'socket.io-client';
+import socket from '@/services/socket.js';
 
 const comandes = ref([]);
 const userComandes = ref([]);
