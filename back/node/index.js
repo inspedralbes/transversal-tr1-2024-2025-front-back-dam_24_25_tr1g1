@@ -774,11 +774,10 @@ app.post('/addComan', async (req, res) => {
         console.log('Nuevo cliente conectado');
     
         socket.on('updateComanda', async (data) => {
-            // Aquí puedes llamar a tu función para actualizar la base de datos
             try {
                 const { id, estat } = data;
-                await updateComandaInDatabase(id, estat); // Asegúrate de que esta función existe y funciona correctamente
-                // Emitir el evento para que todos los clientes actualicen la UI
+                await updateComandaInDatabase(id, estat);
+
                 io.emit('comandaUpdated', { id, estat });
             } catch (error) {
                 console.error("Error al actualizar la comanda:", error);
@@ -803,7 +802,7 @@ app.post('/addComan', async (req, res) => {
             await connection.execute(updateQuery, [estat, id]);
             
             io.emit('comandaUpdated', { id, estat }); 
-            console.log('Comanda actualizada:', { id, estat }); // Registro de la actualización
+            console.log('Comanda actualizada:', { id, estat });
     
             const [updatedRow] = await connection.execute(`SELECT * FROM comandes WHERE id = ?`, [id]);
             connection.end();

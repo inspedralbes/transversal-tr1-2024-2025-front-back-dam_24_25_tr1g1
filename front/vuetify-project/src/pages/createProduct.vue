@@ -69,8 +69,9 @@
             <v-checkbox label="conté gluten" v-model="gluten"></v-checkbox>
             <v-checkbox label="conté lactosa" v-model="lactosa"></v-checkbox>
             <v-checkbox label="conté crustacis" v-model="crustacis"></v-checkbox>
-            <v-btn type="submit" color="primary">Submit</v-btn>
-        </v-form>
+            <v-btn type="submit" class="mr-12" color="primary">Editar</v-btn>
+            <v-btn to="/products" color="red" margin="80px">Cancel·lar</v-btn>
+                 </v-form>
     </v-container>
 </template>
 

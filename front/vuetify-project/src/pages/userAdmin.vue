@@ -48,7 +48,6 @@ import { callGetUsers, callDeleteUser, callPutUser } from '../services/communica
 
 let users = ref([]);
 
-// Cargar usuarios al montar el componente y convertir admin a booleano
 onMounted(async () => {
     const fetchedUsers = await callGetUsers();
     users.value = fetchedUsers.map(user => ({
@@ -57,16 +56,14 @@ onMounted(async () => {
     }));
 });
 
-// Función para mostrar el gráfico en el modal
 const showStats = async () => {
     try {
         const response = await fetch("http://pregrillgrab.dam.inspedralbes.cat:26968/generate-client-stats");
         const data = await response.json();
         
-        // Si la URL de la imagen está disponible, abrirla en el modal
         if (data.imageUrl) {
             statsImageUrl.value = data.imageUrl;
-            isModalVisible.value = true; // Mostrar el modal
+            isModalVisible.value = true;
         } else {
             console.error("No se obtuvo la URL de la imagen");
         }
@@ -75,7 +72,6 @@ const showStats = async () => {
     }
 };
 
-// Función para confirmar y eliminar un usuario
 const confirmDeleteUser = async (id) => {
     const confirmed = confirm("¿Estás seguro de que deseas eliminar este usuario?");
     if (confirmed) {
