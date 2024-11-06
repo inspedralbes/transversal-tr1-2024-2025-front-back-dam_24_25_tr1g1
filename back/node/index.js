@@ -42,6 +42,112 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+app.get('/clientes', async (req, res) => {
+    let connection;
+    try {
+        connection = await mysql.createConnection(config);
+
+        const query = `
+            SELECT 
+                u.id AS ID, 
+                u.nom AS Clientes, 
+                COUNT(c.client) AS Ventes, 
+                COALESCE(SUM(c.preuComanda), 0) AS Diners
+            FROM 
+                usuaris u
+            LEFT JOIN 
+                comandes c ON u.id = c.client
+            GROUP BY 
+                u.id, u.nom  
+        `;
+
+        const [rows] = await connection.execute(query);
+
+        let jsonData = { "usuaris": [] };
+
+        rows.forEach(row => {
+            // Calcular Diners/venda (dinero por venta)
+            let dinersVenda = row.Ventes > 0 ? (row.Diners / row.Ventes).toFixed(2) : 0;
+
+            jsonData.usuaris.push({
+                "ID": row.ID,
+                "Clients": row.Clientes,
+                "Ventes": row.Ventes,
+                "Diners": row.Diners,
+                "Diners/venda": parseFloat(dinersVenda),
+                "Moneda": "€"
+            });
+        });
+
+        res.json(jsonData);
+
+    } catch (err) {
+        console.error('Error MySQL', err);
+        res.status(500).send('Error en los datos');
+    } finally {
+        if (connection) {
+            await connection.end();
+        }
+    }
+});
+// Endpoint para generar estadísticas de clientes
+app.get('/generate-client-stats', (req, res) => {
+    // Ruta del archivo .ipynb convertido en un script de Python
+    const scriptPath = path.join(__dirname, '..', 'python', 'clients.py'); // Adaptamos el .ipynb a un .py
+
+    // Ejecutar el script de Python
+    exec(`python "${scriptPath}"`, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error ejecutando el script: ${stderr}`);
+            return res.status(500).json({ error: "Error al generar las estadísticas" });
+        }
+
+        // Imagen generada en uploads/client_stats.png
+        const imageUrl = `http://localhost:26968/uploads/estats.png`;
+        res.json({ imageUrl });
+    });
+});
+
+// Servir la carpeta de uploads para que las imágenes generadas sean accesibles
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+app.get('/historial_vendas', async (req, res) => {
+    const email = req.query.email; 
+    let connection;
+    try {
+        connection = await mysql.createConnection(config);
+
+        const query = `
+            SELECT 
+                c.id AS comanda_id,
+                c.preuComanda AS diners_gastats,
+                c.data AS data_comanda
+            FROM 
+                usuaris u
+            JOIN 
+                comandes c ON u.id = c.client
+            WHERE 
+                u.correu = ?  `; 
+
+        const [rows] = await connection.execute(query, [email]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: "No se encontraron ventas para este correo." });
+        }
+
+        res.json(rows);
+
+    } catch (err) {
+        console.error('Error MySQL', err);
+        res.status(500).send('Error en los datos');
+    } finally {
+        if (connection) {
+            await connection.end();
+        }
+    }
+});
+
+
 app.get('/getProd', async (req, res) => {
     console.log('getProd')
 

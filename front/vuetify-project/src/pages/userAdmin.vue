@@ -57,6 +57,24 @@ onMounted(async () => {
     }));
 });
 
+// Función para mostrar el gráfico en el modal
+const showStats = async () => {
+    try {
+        const response = await fetch("http://pregrillgrab.dam.inspedralbes.cat:26968/generate-client-stats");
+        const data = await response.json();
+        
+        // Si la URL de la imagen está disponible, abrirla en el modal
+        if (data.imageUrl) {
+            statsImageUrl.value = data.imageUrl;
+            isModalVisible.value = true; // Mostrar el modal
+        } else {
+            console.error("No se obtuvo la URL de la imagen");
+        }
+    } catch (error) {
+        console.error("Error al obtener las estadísticas:", error);
+    }
+};
+
 // Función para confirmar y eliminar un usuario
 const confirmDeleteUser = async (id) => {
     const confirmed = confirm("¿Estás seguro de que deseas eliminar este usuario?");

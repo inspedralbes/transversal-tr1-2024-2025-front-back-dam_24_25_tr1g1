@@ -37,9 +37,6 @@ import { io } from 'socket.io-client';
 const comandes = ref([]);
 const userComandes = ref([]);
 const estatOptions = ref([]);
-
-const socket = io('http://localhost:26968');
-
 const route = useRoute();
 const userId = route.params.id;
 
