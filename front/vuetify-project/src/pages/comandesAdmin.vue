@@ -63,13 +63,12 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { callGetComandes, callUpdateComandaStatus, callGetEstats } from '../services/communicationManager.js';
-import { io } from 'socket.io-client';
+import socket from '@/services/socket.js';
 
 const comandes = ref([]);
 const estatOptions = ref([]);
 
-// Conectar con el servidor Socket.IO
-const socket = io('http://localhost:26968'); // Asegúrate de que esta URL sea correcta
+
 
 // Cargar comandas y estados al montar el componente
 onMounted(async () => {
