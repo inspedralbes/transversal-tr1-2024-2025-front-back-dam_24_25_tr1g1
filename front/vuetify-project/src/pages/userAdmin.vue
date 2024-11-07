@@ -17,7 +17,6 @@
                     </v-col>
                     <v-col class="d-flex justify-center align-center">
                         <v-row>
-
                         </v-row>
                         <v-row align="center">
                             <v-checkbox
@@ -26,15 +25,12 @@
                                 label="Admin"
                             ></v-checkbox>
                         </v-row>
-                       
                     </v-col>
                     <v-col class="d-flex justify-end">
                         <v-list-item-action>
-                            
                             <v-btn icon :to="'/showCommands/'+user.id">
                                 <v-icon>mdi-cart</v-icon>
                             </v-btn>
-
                             <v-btn icon @click="confirmDeleteUser(user.id)">
                                 <v-icon>mdi-delete</v-icon>
                             </v-btn>
@@ -49,15 +45,14 @@
                     <span class="headline">Estadísticas de Clientes</span>
                 </v-card-title>
                 <v-card-text>
-                    <!-- Mostrar la imagen en el modal -->
-                    <img :src="statsImageUrl" alt="Estadísticas de Clientes" class="full-width" />
+                    <!-- Mostrar la imagen estática en el modal -->
+                    <img src="http://localhost:26968/uploads/estats.png" alt="Estadísticas de Clientes" class="full-width" />
                 </v-card-text>
                 <v-card-actions>
                     <v-btn color="blue darken-1" text @click="isModalVisible = false">Cerrar</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
-
     </v-container>
 </template>
 
@@ -67,7 +62,6 @@ import { ref, onMounted } from 'vue';
 import { callGetUsers, callDeleteUser, callPutUser } from '../services/communicationManager.js';
 
 let users = ref([]);
-let statsImageUrl = ref(null); // La URL de la imagen del gráfico
 let isModalVisible = ref(false); 
 
 onMounted(async () => {
@@ -78,22 +72,28 @@ onMounted(async () => {
     }));
 });
 
-const showStats = async () => {
-    try {
-        const response = await fetch("http://localhost:26968/generate-client-stats");
-        const data = await response.json();
-        
-        // Si la URL de la imagen está disponible, abrirla en el modal
-        if (data.imageUrl) {
-            statsImageUrl.value = data.imageUrl;
-            isModalVisible.value = true; // Mostrar el modal
-        } else {
-            console.error("No se obtuvo la URL de la imagen");
-        }
-    } catch (error) {
-        console.error("Error al obtener las estadísticas:", error);
-    }
+const showStats = () => {
+    // Solo mostramos el modal con la imagen estática
+    isModalVisible.value = true;
 };
+// Aquesta es la const correcta, pero no es pot fer ja que al labs no podemos importar les llibreries necesaries i dona error
+
+// const showStats = async () => {
+//     try {
+//         const response = await fetch("http://localhost:26968/generate-client-stats");
+//         const data = await response.json();
+        
+//         // Si la URL de la imagen está disponible, abrirla en el modal
+//         if (data.imageUrl) {
+//             statsImageUrl.value = data.imageUrl;
+//             isModalVisible.value = true; // Mostrar el modal
+//         } else {
+//             console.error("No se obtuvo la URL de la imagen");
+//         }
+//     } catch (error) {
+//         console.error("Error al obtener las estadísticas:", error);
+//     }
+// };
 
 const confirmDeleteUser = async (id) => {
     const confirmed = confirm("¿Estás seguro de que deseas eliminar este usuario?");
