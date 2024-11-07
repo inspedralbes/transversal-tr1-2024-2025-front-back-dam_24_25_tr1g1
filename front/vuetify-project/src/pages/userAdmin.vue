@@ -46,7 +46,7 @@
                 </v-card-title>
                 <v-card-text>
                     <!-- Mostrar la imagen estática en el modal -->
-                    <img src="http://localhost:26968/uploads/estats.png" alt="Estadísticas de Clientes" class="full-width" />
+                    <img src="http://dam.inspedralbes.cat:26968/uploads/estats.png" alt="Estadísticas de Clientes" class="full-width" />
                 </v-card-text>
                 <v-card-actions>
                     <v-btn color="blue darken-1" text @click="isModalVisible = false">Cerrar</v-btn>
