@@ -91,25 +91,19 @@ app.get('/clientes', async (req, res) => {
         }
     }
 });
-// Endpoint para generar estadísticas de clientes
-app.get('/generate-client-stats', (req, res) => {
-    // Ruta del archivo .ipynb convertido en un script de Python
-    const scriptPath = path.join(__dirname, '..', 'python', 'clients.py'); // Adaptamos el .ipynb a un .py
-
-    // Ejecutar el script de Python
-    exec(`python "${scriptPath}"`, (error, stdout, stderr) => {
+¡app.get('/generate-client-stats', (req, res) => {
+¡    const scriptPath = path.join(__dirname, '..', 'python', 'clients.py'); ¡
+¡    exec(`python "${scriptPath}"`, (error, stdout, stderr) => {
         if (error) {
             console.error(`Error ejecutando el script: ${stderr}`);
             return res.status(500).json({ error: "Error al generar las estadísticas" });
         }
 
-        // Imagen generada en uploads/client_stats.png
-        const imageUrl = `http://localhost:26968/uploads/estats.png`;
+¡        const imageUrl = `http://localhost:26968/uploads/estats.png`;
         res.json({ imageUrl });
     });
 });
 
-// Servir la carpeta de uploads para que las imágenes generadas sean accesibles
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.get('/historial_vendas', async (req, res) => {
@@ -333,7 +327,7 @@ app.delete('/delProd/:id', async (req, res) => {
         const [rows] = await connection.execute('SELECT fotoRuta FROM productes WHERE id = ?', [id]);
         if (rows.length > 0) {
             const fotoRuta = rows[0].fotoRuta;
-            const filePath = `./uploads/${fotoRuta}`;
+            const filePath = `./${fotoRuta}`;
             try {
                 await fs.access(filePath); 
                 await fs.unlink(filePath); 
