@@ -25,20 +25,34 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import tarjeta from "../components/tarjeta.vue";
-import { callGetCategories, callGetProducts } from "../services/communicationManager.js";
+import { callGetCategories, callGetProducts, callDeleteUser } from "../services/communicationManager.js";
+import socket from '@/services/socket.js';
 
 const categories = ref([]);
 const products = ref([]);
 
+// Carga las categorías y productos iniciales
 onMounted(async () => {
   categories.value = await callGetCategories();
   products.value = await callGetProducts();
+
+  // Escucha el evento de eliminación de producto a través del socket
+  socket.on('productDeleted', (data) => {
+    handleProductDeleted(data.id); // Asegúrate de que data contenga la propiedad id
+  });
 });
 
-// Método para manejar la eliminación del producto
+// Función para manejar la eliminación del producto en el frontend
 const handleProductDeleted = (id) => {
   products.value = products.value.filter(product => product.id !== id);
 };
+
+// Función para eliminar el producto manualmente
+const deleteProduct = async (id) => {
+  await callDeleteUser(id);  // Llama a la API para eliminar el producto en el servidor
+  handleProductDeleted(id);  // Remueve el producto localmente tras la eliminación
+};
+
 </script>
 
 <style scoped>

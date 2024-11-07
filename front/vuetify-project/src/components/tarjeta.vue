@@ -15,7 +15,7 @@
     </div>
     <v-card-actions class="./buttonBar">
       <v-btn color="primary" :to="'/editProduct/' + product.id">Edit</v-btn>
-      <v-btn color="error" @click="confirmEraseProduct">Delete</v-btn>
+      <v-btn color="red" @click="confirmEraseProduct">Eliminar</v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -41,15 +41,15 @@ export default {
     confirmEraseProduct() {
       const confirmed = confirm("¿Estás seguro de que deseas eliminar este producto?");
       if (confirmed) {
-        this.eraseProduct();
+        this.eraseProduct(); // Si el usuario confirma, llama a la función para eliminar
       }
     },
     async eraseProduct() {
-      await callDeleteProduct(this.product.id);
-      // Aquí puedes emitir un evento para que el componente padre actualice la lista de productos
+      await callDeleteProduct(this.product.id); // Llama al endpoint de eliminación
+      // Emitimos el evento para actualizar la lista en el componente padre
       this.$emit('productDeleted', this.product.id);
     }
-  }
+}
 };
 </script>
 
