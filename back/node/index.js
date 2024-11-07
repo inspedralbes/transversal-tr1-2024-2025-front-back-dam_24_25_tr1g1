@@ -8,6 +8,7 @@ const multer = require('multer');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const { exec } = require('child_process')
+const fs = require('fs').promises;
 
 app.use(express.json());
 app.use(cors());
@@ -30,10 +31,9 @@ const config = {
     port: 3306 
 };
 
-// Configuración de multer para almacenar las imágenes en una carpeta del servidor
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/'); // Carpeta donde se guardarán las imágenes
+        cb(null, 'uploads/'); 
     },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -330,21 +330,34 @@ app.delete('/delProd/:id', async (req, res) => {
     
     try {
         const connection = await mysql.createConnection(config);
+        const [rows] = await connection.execute('SELECT fotoRuta FROM productes WHERE id = ?', [id]);
+        if (rows.length > 0) {
+            const fotoRuta = rows[0].fotoRuta;
+            const filePath = `./uploads/${fotoRuta}`;
+            try {
+                await fs.access(filePath); 
+                await fs.unlink(filePath); 
+                console.log(`Archivo eliminado: ${filePath}`);
+            } catch (error) {
+                console.error('El archivo no existe o no pudo ser eliminado:', error);
+            }
 
         await connection.execute('DELETE FROM productes WHERE id = ' + id);
 
-        const [rows, fields] = await connection.execute('SELECT * FROM productes');
+        const [updatedRows] = await connection.execute('SELECT * FROM productes');
 
-        const categories = rows;
-
-        res.json(categories);
-
+        res.json(updatedRows);
+        }
+        else {
+            res.status(404).send('Producte no trobat')
+        }
     } catch (err) {
         console.error('Error MySQL', err)
         res.status(500).send('Error data')
     }
     
     });
+
 
 app.get('/getCat', async (req, res) => {
     console.log('getCat')
