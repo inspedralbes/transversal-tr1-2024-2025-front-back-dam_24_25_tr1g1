@@ -7,7 +7,6 @@ const mysql = require('mysql2/promise');
 const multer = require('multer');
 const path = require('path');
 const bcrypt = require('bcrypt');
-const { spawn } = require('child_process')
 const { exec } = require('child_process')
 
 app.use(express.json());
@@ -25,8 +24,8 @@ const io = socketIo(server, {
 
 const config = {
     host: 'localhost',
-    user: 'root',
-    password: '',
+    user: 'a20erigomvil_grillgrab',
+    password: 'GrillGrab123!',
     database: 'a20erigomvil_grillgrab',
     port: 3306 
 };
@@ -94,17 +93,22 @@ app.get('/clientes', async (req, res) => {
 });
 // Endpoint para generar estadísticas de clientes
 app.get('/generate-client-stats', (req, res) => {
+    // Ruta del archivo .ipynb convertido en un script de Python
     const scriptPath = path.join(__dirname, '..', 'python', 'clients.py'); // Adaptamos el .ipynb a un .py
+
     // Ejecutar el script de Python
     exec(`python "${scriptPath}"`, (error, stdout, stderr) => {
         if (error) {
             console.error(`Error ejecutando el script: ${stderr}`);
-            return res.status(500).json({ error: "Error al generar las estadísticas", details: stderr });
+            return res.status(500).json({ error: "Error al generar las estadísticas" });
         }
+
+        // Imagen generada en uploads/client_stats.png
         const imageUrl = `http://localhost:26968/uploads/estats.png`;
         res.json({ imageUrl });
-    });    
+    });
 });
+
 // Servir la carpeta de uploads para que las imágenes generadas sean accesibles
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -268,15 +272,16 @@ app.put('/modProd/:id', upload.single('imatge'), async (req, res) => {
             prod.lactosa = prod.lactosa !== undefined ? prod.lactosa : cosas.lactosa;
             prod.crustacis = prod.crustacis !== undefined ? prod.crustacis : cosas.crustacis;
 
-            let oferta = prod.oferta === "0" ? null : prod.oferta;
-
+            //let oferta = prod.oferta === "0" ? null : prod.oferta;
+            console.log(prod.oferta)
+            if(prod.oferta != "null"){
             const updateQuery = 'UPDATE productes SET nom = ?, descripcio = ?, fotoRuta = ?, preu = ?, oferta = ?, stock = ?, category = ?, halal = ?, vegan = ?, gluten = ?, lactosa = ?, crustacis = ? WHERE id = ?;';
             await connection.execute(updateQuery, [
                 prod.nom,
                 prod.descripcio,
                 fotoRuta,
                 prod.preu,
-                oferta,
+                prod.oferta,
                 prod.stock,
                 prod.category,
                 prod.halal,
@@ -286,6 +291,25 @@ app.put('/modProd/:id', upload.single('imatge'), async (req, res) => {
                 prod.crustacis,
                 id
             ]);
+        }
+            else{
+                const updateQuery = 'UPDATE productes SET nom = ?, descripcio = ?, fotoRuta = ?, preu = ?, oferta = ?, stock = ?, category = ?, halal = ?, vegan = ?, gluten = ?, lactosa = ?, crustacis = ? WHERE id = ?;';
+                await connection.execute(updateQuery, [
+                    prod.nom,
+                    prod.descripcio,
+                    fotoRuta,
+                    prod.preu,
+                    null,
+                    prod.stock,
+                    prod.category,
+                    prod.halal,
+                    prod.vegan,
+                    prod.gluten,
+                    prod.lactosa,
+                    prod.crustacis,
+                    id
+                ]); 
+            }
 
             const [rows] = await connection.execute('SELECT * FROM productes');
             res.json(rows);
@@ -771,10 +795,11 @@ app.post('/addComan', async (req, res) => {
         console.log('Nuevo cliente conectado');
     
         socket.on('updateComanda', async (data) => {
+            // Aquí puedes llamar a tu función para actualizar la base de datos
             try {
                 const { id, estat } = data;
-                await updateComandaInDatabase(id, estat);
-
+                await updateComandaInDatabase(id, estat); // Asegúrate de que esta función existe y funciona correctamente
+                // Emitir el evento para que todos los clientes actualicen la UI
                 io.emit('comandaUpdated', { id, estat });
             } catch (error) {
                 console.error("Error al actualizar la comanda:", error);
@@ -799,7 +824,7 @@ app.post('/addComan', async (req, res) => {
             await connection.execute(updateQuery, [estat, id]);
             
             io.emit('comandaUpdated', { id, estat }); 
-            console.log('Comanda actualizada:', { id, estat });
+            console.log('Comanda actualizada:', { id, estat }); // Registro de la actualización
     
             const [updatedRow] = await connection.execute(`SELECT * FROM comandes WHERE id = ?`, [id]);
             connection.end();
