@@ -14,12 +14,20 @@
                         </v-list-item-content>
                     </v-col>
                     <v-col class="d-flex justify-end">
-                        <v-btn 
-                            @click="toggleEstat(comanda)" 
+                        <v-btn class="mx-5"  
+                            @click="toggleEstatBefore(comanda)" 
                             color="primary" 
-                            :disabled="isFinalEstat(comanda.estat)"
+                            :disabled="isFirstEstat(comanda.estat)||comanda.cancel === 1 || comanda.estat === 'Recollit'"
                         >
-                            Canviar Estat
+                           Retrocedir Comanda 
+                        </v-btn>
+                        <br>
+                        <v-btn class="mx-5" 
+                            @click="toggleEstatNext(comanda)" 
+                            color="primary" 
+                            :disabled="isFinalEstat(comanda.estat) || comanda.cancel === 1 || comanda.estat === 'Recollit'"
+                        >
+                            Continuar Comanda
                         </v-btn>
                     </v-col>
                 </v-row>
@@ -55,27 +63,56 @@ onMounted(async () => {
     });
 });
 
-const toggleEstat = async (comanda) => {
+// Función para cambiar el estado de la comanda
+const toggleEstatNext = async (comanda) => {
     if (!isFinalEstat(comanda.estat)) {
         const nextState = getNextEstat(comanda.estat);
         
         try {
             await callUpdateComandaStatus(comanda.id, nextState);
-            socket.emit('updateComanda', { id: comanda.id, estat: nextState });
+            // Enviar el evento de actualización a través de Socket.IO
+            socket.emit('updateComanda', { id: comanda.id, estat: nextState }); // Emitir evento para que otros clientes lo reciban
         } catch (error) {
             console.error("Error al actualizar el estado en la base de datos:", error);
         }
     }
 };
 
+// Función para cambiar el estado de la comanda
+const toggleEstatBefore = async (comanda) => {
+    if (!isFinalEstat(comanda.estat)) {
+        const beforeState = getPrevEstat(comanda.estat);
+        
+        try {
+            await callUpdateComandaStatus(comanda.id, beforeState);
+            // Enviar el evento de actualización a través de Socket.IO
+            socket.emit('updateComanda', { id: comanda.id, estat: beforeState }); // Emitir evento para que otros clientes lo reciban
+        } catch (error) {
+            console.error("Error al actualizar el estado en la base de datos:", error);
+        }
+    }
+};
+
+// Función auxiliar para obtener el próximo estado
 const getNextEstat = (currentEstat) => {
     const currentIndex = estatOptions.value.indexOf(currentEstat);
-    if (currentIndex === -1) return currentEstat;
+    if (currentIndex === -1) return currentEstat; // Si no se encuentra, retornar el actual
     return estatOptions.value[(currentIndex + 1) % estatOptions.value.length];
 };
 
+// Función auxiliar para obtener el estado anterior
+const getPrevEstat = (currentEstat) => {
+        const currentIndex = estatOptions.value.indexOf(currentEstat);
+        if (currentIndex === -1) return currentEstat; // Si no se encuentra, retornar el actual
+        return estatOptions.value[(currentIndex - 1 + estatOptions.value.length) % estatOptions.value.length];
+    };
+
 const isFinalEstat = (estat) => {
     return estat === estatOptions.value[estatOptions.value.length - 1];
+};
+
+const isFirstEstat = (estat) => {
+    return estat === estatOptions.value[0];
 };
 </script>
 
