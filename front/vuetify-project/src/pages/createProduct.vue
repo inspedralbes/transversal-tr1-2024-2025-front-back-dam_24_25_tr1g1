@@ -69,7 +69,7 @@
             <v-checkbox label="conté gluten" v-model="gluten"></v-checkbox>
             <v-checkbox label="conté lactosa" v-model="lactosa"></v-checkbox>
             <v-checkbox label="conté crustacis" v-model="crustacis"></v-checkbox>
-            <v-btn type="submit" class="mr-12" color="primary">Editar</v-btn>
+            <v-btn type="submit" class="mr-12" color="primary">Crear</v-btn>
             <v-btn to="/products" color="red" margin="80px">Cancel·lar</v-btn>
                  </v-form>
     </v-container>
@@ -111,7 +111,7 @@ onMounted(async () => {
 
 
   const handleSubmit = async () => {
-    if(productName.value==null || descripció.value==null || price.value==null || stock.value==null || valueToSend.value==null || !document.querySelector('input[type="file"]').files.length ){
+    if(productName.value==null || descripció.value==null || price.value==null ||offerPrice.value==null|| stock.value==null || valueToSend.value==null || !document.querySelector('input[type="file"]').files.length ){
         alert("Falten camps per omplir");
     } else {
         
@@ -119,7 +119,7 @@ onMounted(async () => {
         nom: productName.value,
         descripcio: descripció.value,
         preu: price.value,
-        oferta: offerPrice.value || null,
+        oferta: offerPrice.value ,
         stock: stock.value,
         category: categoriesFull.value.find(category => category.nom === valueToSend.value).id,
         halal: halal.value ? 1 : 0,

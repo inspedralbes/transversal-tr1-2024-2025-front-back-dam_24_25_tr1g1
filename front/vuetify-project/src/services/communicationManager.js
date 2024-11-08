@@ -29,12 +29,13 @@ export async function callGetProductById(id) {
 }
 
 export async function callPostProduct(product, image) {
-    console.log("product",image);
+    console.log("product", image);
+    
     const formData = new FormData();
     formData.append('nom', product.nom);
     formData.append('descripcio', product.descripcio);
     formData.append('preu', product.preu);
-    formData.append('oferta', product.offerPrice || null);
+    formData.append('oferta', product.oferta !== undefined ? Number(product.oferta) : null);  // Convertimos a número
     formData.append('stock', product.stock);
     formData.append('category', product.category);
     formData.append('halal', product.halal);
@@ -42,11 +43,11 @@ export async function callPostProduct(product, image) {
     formData.append('gluten', product.gluten);
     formData.append('lactosa', product.lactosa);
     formData.append('crustacis', product.crustacis);
-    formData.append('imatge', image);    
+    formData.append('imatge', image);
+
     const response = await fetch(`${import.meta.env.VITE_API_BACK}/addProd`, {
         method: 'POST',
         body: formData,
- 
     });
 
     const newProduct = await response.json();
@@ -54,11 +55,13 @@ export async function callPostProduct(product, image) {
 }
 
 export async function callPutProduct(product, image) {
+    console.log("product", image);
+    
     const formData = new FormData();
     formData.append('nom', product.nom);
     formData.append('descripcio', product.descripcio);
     formData.append('preu', product.preu);
-    formData.append('oferta', product.offerPrice || null);
+    formData.append('oferta', product.oferta !== undefined ? Number(product.oferta) : null);  // Convertimos a número
     formData.append('stock', product.stock);
     formData.append('category', product.category);
     formData.append('halal', product.halal);

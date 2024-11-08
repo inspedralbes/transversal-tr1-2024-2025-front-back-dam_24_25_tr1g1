@@ -91,15 +91,15 @@ app.get('/clientes', async (req, res) => {
         }
     }
 });
-¡app.get('/generate-client-stats', (req, res) => {
-¡    const scriptPath = path.join(__dirname, '..', 'python', 'clients.py'); ¡
-¡    exec(`python "${scriptPath}"`, (error, stdout, stderr) => {
+app.get('/generate-client-stats', (req, res) => {
+    const scriptPath = path.join(__dirname, '..', 'python', 'clients.py'); 
+    exec(`python "${scriptPath}"`, (error, stdout, stderr) => {
         if (error) {
             console.error(`Error ejecutando el script: ${stderr}`);
             return res.status(500).json({ error: "Error al generar las estadísticas" });
         }
 
-¡        const imageUrl = `http://localhost:26968/uploads/estats.png`;
+        const imageUrl = `http://dam.inspedralbes.cat:26968/uploads/estats.png`;
         res.json({ imageUrl });
     });
 });
@@ -191,7 +191,7 @@ app.post('/addProd', upload.single('imatge'), async (req, res) => {
     const prod = req.body;
     
 
-    if (prod.nom != null && prod.nom != "" && prod.descripcio != null && prod.descripcio != "" && prod.preu != null && prod.preu != ""&& prod.stock != null && prod.stock != "" && prod.category != null && prod.category != "") {
+    if (prod.nom != null && prod.nom != "" && prod.descripcio != null && prod.descripcio != "" && prod.preu != null && prod.preu != "" && prod.oferta != null && prod.oferta != "" && prod.stock != null && prod.stock != "" && prod.category != null && prod.category != "") {
         try {
             const connection = await mysql.createConnection(config);
 
@@ -201,13 +201,6 @@ app.post('/addProd', upload.single('imatge'), async (req, res) => {
             `;
 
             const fotoRuta = req.file.path;
-
-            let oferta = null;
-
-            if(prod.oferta =! null){
-                oferta == prod.oferta   
-            }
-
             console.log("dasdasdasdas", prod.oferta)
 
             await connection.execute(insertQuery, [
@@ -215,7 +208,7 @@ app.post('/addProd', upload.single('imatge'), async (req, res) => {
                 prod.descripcio,
                 fotoRuta,
                 prod.preu,
-                oferta,
+                prod.oferta,
                 prod.stock,
                 prod.category,
                 prod.halal,
