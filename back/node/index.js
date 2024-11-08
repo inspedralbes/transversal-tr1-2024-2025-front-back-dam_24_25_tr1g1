@@ -344,7 +344,39 @@ app.delete('/delProd/:id', async (req, res) => {
     }
     
     });
+    
+app.put('/stockProd/:id', upload.single('imatge'), async (req, res) => {
+    console.log("modProd");
+    const id = req.params.id;
+    const cantidad = req.body;
+        try {
+            const connection = await mysql.createConnection(config);
+            const [resultats] = await connection.execute('SELECT * FROM productes WHERE id = ?', [id]);
+            const cosas = resultats[0];
 
+            if (!cosas) {
+                return res.status(404).send('No existe el producto');
+            }
+
+            const stock = cosas.stock - cantidad.stock;
+
+            //let oferta = prod.oferta === "0" ? null : prod.oferta;
+            
+            const updateQuery = 'UPDATE productes SET stock = ? WHERE id = ?;';
+            await connection.execute(updateQuery, [
+                stock,
+                id
+            ]);
+
+            const [rows] = await connection.execute('SELECT * FROM productes');
+            res.json(rows);
+            await connection.end();
+
+        } catch (err) {
+            console.error('Error MySQL', err);
+            res.status(500).send('Error updating product');
+        }
+});
 
 app.get('/getCat', async (req, res) => {
     console.log('getCat')
