@@ -740,12 +740,14 @@ app.delete('/delCat/:id', async (req, res) => {
     });
 
     async function reduceStock(content){
+        const cesta = JSON.parse(content);
         const connection = await mysql.createConnection(config);
-        const content = JSON.parse(content);
-        for (const item of content) {
+            for (const item of cesta) {
+            console.log(item.id)
             const [rows] = await connection.execute('SELECT stock FROM productes WHERE id = ?', [item.id]);
             if (rows.length > 0) {
-            const newStock = rows[0].stock - item.quantity;
+            const newStock = rows[0].stock - item.quantitat;
+            console.log(newStock)
             await connection.execute('UPDATE productes SET stock = ? WHERE id = ?', [newStock, item.id]);
             }
         }
@@ -759,18 +761,20 @@ app.post('/addComan', async (req, res) => {
         try {
             const connection = await mysql.createConnection(config);
     
-            const insertQuery = `INSERT INTO comandes (contingut, client) VALUES (?, ?)`;
+            const insertQuery = `INSERT INTO comandes (contingut, client, preuComanda) VALUES (?, ?, ?)`;
     
             prod.contingut = JSON.stringify(prod.contingut);
 
             await connection.execute(insertQuery, [
                 prod.contingut,
-                prod.client
+                prod.client,
+                prod.preuComanda
             ]);
     
     
             const [result] = await connection.execute('SELECT LAST_INSERT_ID() as id');
             const lastInsertedId = result[0].id;
+            console.log(prod.contingut)
             reduceStock(prod.contingut)
             res.send(lastInsertedId.toString());
     
@@ -881,9 +885,28 @@ app.post('/addComan', async (req, res) => {
             return "error"
         }
     }
+
+app.put('/delComan/:id', async (req, res) => {
+    const id = req.params.id;
+
+    console.log("delComan " + id);
+
+    const connection = await mysql.createConnection(config);
+
+    try {
+        const updateQuery = `UPDATE comandes SET cancel = 1 WHERE id = ?; `;
+        await connection.execute(updateQuery, [id]);
+
+        const [updatedRow] = await connection.execute(`SELECT * FROM comandes WHERE id = ?`, [id]);
+        connection.end();
+        res.json(updatedRow[0]);
+    } catch (error) {
+        console.error('Error al actualizar el estado:', error);
+        res.status(500).json({ error: 'Error al actualizar el estado de la comanda' });
+    }
+});
     
     // Cambiar app.listen a server.listen
     server.listen(26968, () => {
         console.log('Servidor escuchando en http://localhost:26968');
     });
-    
