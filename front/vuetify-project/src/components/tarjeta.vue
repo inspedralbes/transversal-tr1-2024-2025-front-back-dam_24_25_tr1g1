@@ -4,7 +4,7 @@
     <v-card-title>{{ product.nom }}</v-card-title>
     <v-card-text>{{ product.descripcio }}</v-card-text>
     <v-card-text>Preu original {{ product.preu.toFixed(2) }} €</v-card-text>
-    <v-card-text v-if="product.oferta">Preu ofertat {{ product.oferta.toFixed(2) }} €</v-card-text>
+    <v-card-text v-if="product.oferta" class="oferta">Preu ofertat {{ product.oferta.toFixed(2) }} €</v-card-text>
     <v-card-text>Stock {{ product.stock }}</v-card-text>
     <div class="grid">
       <v-img src="../assets/halal.png" :class="{ faded: product.halal === 0 }"></v-img>
@@ -54,6 +54,11 @@ export default {
 </script>
 
 <style scoped>
+.oferta{
+  color: red;
+  font-weight: bold;
+}
+
 .card{
   width: 100%;
   height: 100%;
