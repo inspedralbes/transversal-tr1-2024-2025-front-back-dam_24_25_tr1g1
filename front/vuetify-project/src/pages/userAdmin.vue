@@ -42,14 +42,14 @@
         <v-dialog v-model="isModalVisible" max-width="800px">
             <v-card>
                 <v-card-title>
-                    <span class="headline">Estadísticas de Clientes</span>
+                    <span class="headline">Estadístiques de Clients</span>
                 </v-card-title>
                 <v-card-text>
                     <!-- Mostrar la imagen estática en el modal -->
-                    <img src="http://dam.inspedralbes.cat:26968/uploads/estats.png" alt="Estadísticas de Clientes" class="full-width" />
+                    <img src="http://dam.inspedralbes.cat:26968/uploads/estats1.png" alt="Estadísticas de Clientes" class="full-width" />
                 </v-card-text>
                 <v-card-actions>
-                    <v-btn color="blue darken-1" text @click="isModalVisible = false">Cerrar</v-btn>
+                    <v-btn color="blue darken-1" text @click="isModalVisible = false">Tancar</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
