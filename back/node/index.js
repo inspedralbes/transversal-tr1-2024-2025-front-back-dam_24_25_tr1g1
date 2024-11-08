@@ -741,12 +741,14 @@ app.delete('/delCat/:id', async (req, res) => {
 
     async function reduceStock(content){
         const connection = await mysql.createConnection(config);
-
-        const [rows, fields] = await connection.execute('SELECT * FROM productes');
-
-        console.log(rows)
-
-
+        const content = JSON.parse(content);
+        for (const item of content) {
+            const [rows] = await connection.execute('SELECT stock FROM productes WHERE id = ?', [item.id]);
+            if (rows.length > 0) {
+            const newStock = rows[0].stock - item.quantity;
+            await connection.execute('UPDATE productes SET stock = ? WHERE id = ?', [newStock, item.id]);
+            }
+        }
     
     }
 app.post('/addComan', async (req, res) => {
