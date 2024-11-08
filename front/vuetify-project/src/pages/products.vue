@@ -53,39 +53,41 @@ li {
   height: 100%;
 }
 
+.product_container {
+  width: 100%;
+  display: block; 
+}
+
+.category_container {
+  width: 100%;
+  margin: auto;
+  margin-bottom: 2rem;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  grid-auto-rows: 1fr;
-  margin:auto;
-  gap: 1rem;
+  gap: 8rem; 
 }
 
-.product_container {
+.tarjeta {
   width: 100%;
-  display: flex;
-  justify-content: center;
+  height: auto;
+  margin: 2rem; 
+  box-sizing: border-box;
+  border-radius: 8px; 
 }
 
 .general_container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: auto;
-  padding: 1rem;
+  margin: 1rem;
 }
 
 ul {
   width: 100%;
   padding: 0;
-}
-
-.category_container {
-  margin-bottom: 2rem;
-  width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-  display: block;
 }
 
 .create-btn {
@@ -99,9 +101,5 @@ h2 {
   color: #3f51b5;
   margin-bottom: 1rem;
   text-align: center;
-}
-.tarjeta{
-  width: 100%;
-  height: auto;
 }
 </style>
