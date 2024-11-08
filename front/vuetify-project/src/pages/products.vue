@@ -25,7 +25,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import tarjeta from "../components/tarjeta.vue";
-import { callGetCategories, callGetProducts } from "../services/communicationManager.js";
+import socket, { callGetCategories, callGetProducts } from "../services/communicationManager.js";
 
 const categories = ref([]);
 const products = ref([]);
@@ -33,6 +33,11 @@ const products = ref([]);
 onMounted(async () => {
   categories.value = await callGetCategories();
   products.value = await callGetProducts();
+
+  socket.on('productesUpdated', async () => {
+    products.value = await callGetProducts();
+  });
+
 });
 
 // Método para manejar la eliminación del producto

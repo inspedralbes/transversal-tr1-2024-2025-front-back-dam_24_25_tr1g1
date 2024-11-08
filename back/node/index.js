@@ -219,7 +219,7 @@ app.post('/addProd', upload.single('imatge'), async (req, res) => {
             ]);
 
             const [rows] = await connection.execute('SELECT * FROM productes');
-
+            io.emit("productesUpdated");
             res.json(rows);
         } catch (err) {
             console.error('Error MySQL', err);
@@ -299,6 +299,7 @@ app.put('/modProd/:id', upload.single('imatge'), async (req, res) => {
             }
 
             const [rows] = await connection.execute('SELECT * FROM productes');
+            io.emit("productesUpdated");
             res.json(rows);
             await connection.end();
 
@@ -332,6 +333,7 @@ app.delete('/delProd/:id', async (req, res) => {
         await connection.execute('DELETE FROM productes WHERE id = ' + id);
 
         const [updatedRows] = await connection.execute('SELECT * FROM productes');
+        io.emit("productesUpdated");
 
         res.json(updatedRows);
         }
@@ -369,6 +371,7 @@ app.put('/stockProd/:id', upload.single('imatge'), async (req, res) => {
             ]);
 
             const [rows] = await connection.execute('SELECT * FROM productes');
+            io.emit("productesUpdated");
             res.json(rows);
             await connection.end();
 
@@ -637,7 +640,7 @@ app.delete('/delCat/:id', async (req, res) => {
         }
     });
     
-//COMANDES
+
     app.get('/getComan', async (req, res) => {
         console.log('getComan')
     
