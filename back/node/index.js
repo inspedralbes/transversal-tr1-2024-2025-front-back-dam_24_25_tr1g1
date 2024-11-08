@@ -739,7 +739,16 @@ app.delete('/delCat/:id', async (req, res) => {
         }
     });
 
+    async function reduceStock(content){
+        const connection = await mysql.createConnection(config);
 
+        const [rows, fields] = await connection.execute('SELECT * FROM productes');
+
+        console.log(rows)
+
+
+    
+    }
 app.post('/addComan', async (req, res) => {
         console.log("addComan")
         const prod = req.body
@@ -760,6 +769,7 @@ app.post('/addComan', async (req, res) => {
     
             const [result] = await connection.execute('SELECT LAST_INSERT_ID() as id');
             const lastInsertedId = result[0].id;
+            reduceStock(prod.contingut)
             res.send(lastInsertedId.toString());
     
         } catch (err) {
