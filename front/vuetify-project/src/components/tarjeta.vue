@@ -60,8 +60,8 @@ export default {
 }
 
 .card{
-  width: 100%;
-  height: 100%;
+  width: 300px;
+  height: 700px;
   display: flex;
   flex-direction: column;
 }
@@ -76,7 +76,7 @@ export default {
   align-self: center;
 }
 .image{
-  height: 10%;
+  height: 100px;
   object-fit: cover;
 }
 .faded{

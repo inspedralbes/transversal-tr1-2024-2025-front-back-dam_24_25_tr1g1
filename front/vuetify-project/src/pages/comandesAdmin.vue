@@ -170,7 +170,4 @@ li {
     border-radius: 10px;
     margin: 0;
 }
-v-btn {
-    mx: 25px;
-}
 </style>
