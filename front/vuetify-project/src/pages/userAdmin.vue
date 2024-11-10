@@ -76,14 +76,13 @@ const showStats = () => {
     // Solo mostramos el modal con la imagen estática
     isModalVisible.value = true;
 };
-// Aquesta es la const correcta, pero no es pot fer ja que al labs no podemos importar les llibreries necesaries i dona error
+// Aquesta es la const correcta, pero no es pot fer ja que al labs no podem importar les llibreries necesaries
 
 // const showStats = async () => {
 //     try {
 //         const response = await fetch("http://localhost:26968/generate-client-stats");
 //         const data = await response.json();
         
-//         // Si la URL de la imagen está disponible, abrirla en el modal
 //         if (data.imageUrl) {
 //             statsImageUrl.value = data.imageUrl;
 //             isModalVisible.value = true; // Mostrar el modal

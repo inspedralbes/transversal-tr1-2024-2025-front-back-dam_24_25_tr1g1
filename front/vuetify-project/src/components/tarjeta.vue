@@ -14,8 +14,8 @@
       <v-img src="../assets/crustacis.png" :class="{ faded: product.crustacis === 0 }"></v-img>
     </div>
     <v-card-actions class="./buttonBar">
-      <v-btn color="primary" :to="'/editProduct/' + product.id">Edit</v-btn>
-      <v-btn color="error" @click="confirmEraseProduct">Delete</v-btn>
+      <v-btn color="primary" :to="'/editProduct/' + product.id">Editar</v-btn>
+      <v-btn color="error" @click="confirmEraseProduct">Eliminar</v-btn>
     </v-card-actions>
   </v-card>
 </template>
